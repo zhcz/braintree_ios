@@ -24,14 +24,14 @@ class BTPaymentMethodNonceParser_Tests: XCTestCase {
     }
 
     func testParseJSON_whenTypeIsRegistered_callsParsingBlock() {
-        let expectation = self.expectation(description: "Parsing block called")
+        let expectation = expectationWithDescription("Parsing block called")
         parser.registerType("MyType") { _ -> BTPaymentMethodNonce? in
             expectation.fulfill()
             return nil
         }
         parser.parseJSON(BTJSON(), withParsingBlockForType: "MyType")
 
-        waitForExpectations(timeout: 3, handler: nil)
+        waitForExpectationsWithTimeout(3, handler: nil)
     }
     
     func testParseJSON_whenTypeIsNotRegisteredAndJSONContainsNonce_returnsBasicTokenizationObject() {
@@ -53,7 +53,7 @@ class BTPaymentMethodNonceParser_Tests: XCTestCase {
     // MARK: - Payment-specific tests
 
     func testSharedParser_whenTypeIsCreditCard_returnsCorrectCardNonce() {
-        let sharedParser = BTPaymentMethodNonceParser.shared()
+        let sharedParser = BTPaymentMethodNonceParser.sharedParser()
 
         let creditCardJSON = BTJSON(value: [
             "consumed": false,
@@ -78,7 +78,7 @@ class BTPaymentMethodNonceParser_Tests: XCTestCase {
     }
 
     func testSharedParser_whenTypeIsPayPal_returnsPayPalAccountNonce() {
-        let sharedParser = BTPaymentMethodNonceParser.shared()
+        let sharedParser = BTPaymentMethodNonceParser.sharedParser()
         let payPalAccountJSON = BTJSON(value: [
             "consumed": false,
             "description": "jane.doe@example.com",
@@ -101,7 +101,7 @@ class BTPaymentMethodNonceParser_Tests: XCTestCase {
     }
 
     func testSharedParser_whenTypeIsVenmo_returnsVenmoAccountNonce() {
-        let sharedParser = BTPaymentMethodNonceParser.shared()
+        let sharedParser = BTPaymentMethodNonceParser.sharedParser()
         let venmoAccountJSON = BTJSON(value: [
             "consumed": false,
             "description": "VenmoAccount",
@@ -122,7 +122,7 @@ class BTPaymentMethodNonceParser_Tests: XCTestCase {
     }
 
     func testSharedParser_whenTypeIsApplePayCard_returnsApplePayCardNonce() {
-        let sharedParser = BTPaymentMethodNonceParser.shared()
+        let sharedParser = BTPaymentMethodNonceParser.sharedParser()
         let applePayCard = BTJSON(value: [
             "consumed": false,
             "description": "Apple Pay Card ending in 11",
@@ -143,7 +143,7 @@ class BTPaymentMethodNonceParser_Tests: XCTestCase {
     }
 
     func testSharedParser_whenTypeIsUnknown_returnsBasePaymentMethodNonce() {
-        let sharedParser = BTPaymentMethodNonceParser.shared()
+        let sharedParser = BTPaymentMethodNonceParser.sharedParser()
         let JSON = BTJSON(value: [
             "consumed": false,
             "description": "Some thing",

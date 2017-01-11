@@ -17,20 +17,20 @@ import XCTest
         didPerformAppSwitchExpectation = didPerform
     }
 
-    @objc func appSwitcherWillPerformAppSwitch(_ appSwitcher: Any) {
-        lastAppSwitcher = appSwitcher as AnyObject?
+    @objc func appSwitcherWillPerformAppSwitch(appSwitcher: AnyObject) {
+        lastAppSwitcher = appSwitcher
         willPerformAppSwitchExpectation?.fulfill()
         willPerformAppSwitchCalled = true
     }
 
-    @objc func appSwitcher(_ appSwitcher: Any, didPerformSwitchTo target: BTAppSwitchTarget) {
-        lastAppSwitcher = appSwitcher as AnyObject?
+    @objc func appSwitcher(appSwitcher: AnyObject, didPerformSwitchToTarget target: BTAppSwitchTarget) {
+        lastAppSwitcher = appSwitcher
         didPerformAppSwitchExpectation?.fulfill()
         didPerformAppSwitchCalled = true
     }
 
-    @objc func appSwitcherWillProcessPaymentInfo(_ appSwitcher: Any) {
-        lastAppSwitcher = appSwitcher as AnyObject?
+    @objc func appSwitcherWillProcessPaymentInfo(appSwitcher: AnyObject) {
+        lastAppSwitcher = appSwitcher
         willProcessAppSwitchExpectation?.fulfill()
         willProcessAppSwitchCalled = true
     }
@@ -42,14 +42,14 @@ import XCTest
     var lastViewController : UIViewController? = nil
     var lastPaymentDriver : AnyObject? = nil
 
-    func paymentDriver(_ driver: Any, requestsDismissalOf viewController: UIViewController) {
-        lastPaymentDriver = driver as AnyObject?
+    func paymentDriver(driver: AnyObject, requestsDismissalOfViewController viewController: UIViewController) {
+        lastPaymentDriver = driver
         lastViewController = viewController
         requestsDismissalOfViewControllerExpectation?.fulfill()
     }
 
-    func paymentDriver(_ driver: Any, requestsPresentationOf viewController: UIViewController) {
-        lastPaymentDriver = driver as AnyObject?
+    func paymentDriver(driver: AnyObject, requestsPresentationOfViewController viewController: UIViewController) {
+        lastPaymentDriver = driver
         lastViewController = viewController
         requestsPresentationOfViewControllerExpectation?.fulfill()
     }

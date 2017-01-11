@@ -1,0 +1,10 @@
+framework module VisaCheckoutFramework {
+  umbrella header "VisaCheckoutFramework.h"
+
+  export *
+  module * { export * }
+}
+
+module VisaCheckoutFramework.Swift {
+    header "VisaCheckoutFramework-Swift.h"
+}

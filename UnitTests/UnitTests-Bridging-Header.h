@@ -9,6 +9,7 @@
 #import "BraintreeVenmo.h"
 #import "Braintree3DSecure.h"
 #import "BraintreeDataCollector.h"
+#import "BraintreeVisaCheckout.h"
 #import "BraintreeUI.h"
 #import "PayPalOneTouch.h"
 
@@ -32,6 +33,7 @@
 #import "BTThreeDSecureLookupResult.h"
 #import "Braintree-Version.h"
 #import "PPDataCollector_Internal.h"
+#import "BTVisaCheckoutClient_Internal.h"
 #import "BTDropInUtil.h"
 
 #import "BTSpecHelper.h"

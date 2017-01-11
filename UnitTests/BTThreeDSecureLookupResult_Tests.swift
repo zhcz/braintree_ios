@@ -4,10 +4,10 @@ class BTThreeDSecureLookupResult_Tests: XCTestCase {
     
     func testRequiresUserAuthentication_whenAcsUrlIsPresent_returnsTrue() {
         let lookup = BTThreeDSecureLookupResult()
-        lookup.acsURL = URL(string: "http://example.com")
-        lookup.termURL = URL(string: "http://example.com")
-        lookup.md = "an-md"
-        lookup.paReq = "a-PAReq"
+        lookup.acsURL = NSURL(string: "http://example.com")
+        lookup.termURL = NSURL(string: "http://example.com")
+        lookup.MD = "an-md"
+        lookup.PAReq = "a-PAReq"
 
         XCTAssertTrue(lookup.requiresUserAuthentication())
     }
@@ -15,9 +15,9 @@ class BTThreeDSecureLookupResult_Tests: XCTestCase {
     func testRequiresUserAuthentication_whenAcsUrlIsNotPresent_returnsFalse() {
         let lookup = BTThreeDSecureLookupResult()
         lookup.acsURL = nil
-        lookup.termURL = URL(string: "http://example.com")
-        lookup.md = "an-md"
-        lookup.paReq = "a-PAReq"
+        lookup.termURL = NSURL(string: "http://example.com")
+        lookup.MD = "an-md"
+        lookup.PAReq = "a-PAReq"
 
         XCTAssertFalse(lookup.requiresUserAuthentication())
     }

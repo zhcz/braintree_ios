@@ -112,6 +112,14 @@ Finally, [**cocoadocs.org/docsets/Braintree**](http://cocoadocs.org/docsets/Brai
 
 A demo app is included in project. To run it, run `pod install` and then open `Braintree.xcworkspace` in Xcode.
 
+## Visa Checkout
+
+The VisaCheckoutFramework and VisaCheckoutLibrary are not included when cloning this SDK.
+
+Add VisaCheckoutFramework.framework and VisaCheckoutLibrary.bundle from the Visa Checkout SDK to this directory.
+
+Add the GA and CardIO folders from the Visa Checkout SDK Sample Project to this directory.
+
 ## Help
 
 * Read the headers

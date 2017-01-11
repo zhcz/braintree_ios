@@ -117,5 +117,11 @@ Pod::Spec.new do |s|
     s.public_header_files = "BraintreePayPal/PayPalUtils/Public/*.h"
     s.frameworks = "MessageUI", "SystemConfiguration", "CoreLocation", "UIKit"
   end
+  
+  s.subspec "VisaCheckout" do |s|
+    s.source_files  = "BraintreeVisaCheckout/**/*.{h,m}"
+    s.public_header_files = "BraintreeVisaCheckout/Public/*.h"
+    s.dependency "Braintree/Core"
+  end
 end
 

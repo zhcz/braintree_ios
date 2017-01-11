@@ -16,46 +16,45 @@ class BTThreeDSecureDriver_Tests: XCTestCase {
     }
     
     override func tearDown() {
-        for observer in observers { NotificationCenter.default.removeObserver(observer) }
+        for observer in observers { NSNotificationCenter.defaultCenter().removeObserver(observer) }
         super.tearDown()
     }
     
     func testInitialization_initializesWithClientAndDelegate() {
-        let threeDSecureDriver = BTThreeDSecureDriver.init(apiClient: mockAPIClient, delegate:viewControllerPresentingDelegate )
+        let threeDSecureDriver = BTThreeDSecureDriver.init(APIClient: mockAPIClient, delegate:viewControllerPresentingDelegate )
         XCTAssertNotNil(threeDSecureDriver)
     }
     
     func testVerification_whenAPIClientIsNil_callsBackWithError() {
-        let threeDSecureDriver = BTThreeDSecureDriver.init(apiClient: mockAPIClient, delegate:viewControllerPresentingDelegate )
+        let threeDSecureDriver = BTThreeDSecureDriver.init(APIClient: mockAPIClient, delegate:viewControllerPresentingDelegate )
         threeDSecureDriver.apiClient = nil
         
-        let expectation = self.expectation(description: "verification fails with errors")
+        let expectation = expectationWithDescription("verification fails with errors")
 
-        threeDSecureDriver.verifyCard(withNonce: originalNonce_lookupEnrolledAuthenticationNotRequired, amount: NSDecimalNumber.one, completion: { (tokenizedCard, error) -> Void in
+        threeDSecureDriver.verifyCardWithNonce(originalNonce_lookupEnrolledAuthenticationNotRequired, amount: NSDecimalNumber.one(), completion: { (tokenizedCard, error) -> Void in
             XCTAssertNil(tokenizedCard)
             XCTAssertNotNil(error)
-            guard let error = error as? NSError else {return}
-            XCTAssertEqual(error.domain, BTThreeDSecureErrorDomain)
-            XCTAssertEqual(error.code, BTThreeDSecureErrorType.integration.rawValue)
+            XCTAssertEqual(error!.domain, BTThreeDSecureErrorDomain)
+            XCTAssertEqual(error!.code, BTThreeDSecureErrorType.Integration.rawValue)
             expectation.fulfill()
         })
         
-        waitForExpectations(timeout: 2, handler: nil)
+        waitForExpectationsWithTimeout(2, handler: nil)
     }
     
     func testVerification_whenRemoteConfigurationFetchFails_callsBackWithConfigurationError() {
         mockAPIClient.cannedConfigurationResponseError = NSError(domain: "", code: 0, userInfo: nil)
-        let threeDSecureDriver = BTThreeDSecureDriver.init(apiClient: mockAPIClient, delegate:viewControllerPresentingDelegate )
+        let threeDSecureDriver = BTThreeDSecureDriver.init(APIClient: mockAPIClient, delegate:viewControllerPresentingDelegate )
         mockAPIClient = threeDSecureDriver.apiClient as! MockAPIClient
         
-        let expectation = self.expectation(description: "verification fails with errors")
+        let expectation = expectationWithDescription("verification fails with errors")
         
-        threeDSecureDriver.verifyCard(withNonce: originalNonce_lookupEnrolledAuthenticationNotRequired, amount: NSDecimalNumber.one, completion: { (tokenizedCard, error) -> Void in
-            XCTAssertEqual(error! as NSError, self.mockAPIClient.cannedConfigurationResponseError!)
+        threeDSecureDriver.verifyCardWithNonce(originalNonce_lookupEnrolledAuthenticationNotRequired, amount: NSDecimalNumber.one(), completion: { (tokenizedCard, error) -> Void in
+            XCTAssertEqual(error!, self.mockAPIClient.cannedConfigurationResponseError!)
             expectation.fulfill()
         })
         
-        waitForExpectations(timeout: 2, handler: nil)
+        waitForExpectationsWithTimeout(2, handler: nil)
     }
     
     func testVerification_withCardThatDoesntRequireAuthentication_callsCompletionWithACard() {
@@ -81,14 +80,14 @@ class BTThreeDSecureDriver_Tests: XCTestCase {
                 "liabilityShiftPossible": true,
                 "liabilityShifted": true,
             ]
-        ] as [String : Any]
+        ]
         mockAPIClient.cannedResponseBody = BTJSON(value: responseBody)
 
-        let threeDSecureDriver = BTThreeDSecureDriver.init(apiClient: mockAPIClient, delegate:viewControllerPresentingDelegate )
+        let threeDSecureDriver = BTThreeDSecureDriver.init(APIClient: mockAPIClient, delegate:viewControllerPresentingDelegate )
         
-        let expectation = self.expectation(description: "willCallCompletion")
+        let expectation = expectationWithDescription("willCallCompletion")
         
-        threeDSecureDriver.verifyCard(withNonce: originalNonce_lookupEnrolledAuthenticationNotRequired, amount: NSDecimalNumber.one, completion: { (tokenizedCard, error) -> Void in
+        threeDSecureDriver.verifyCardWithNonce(originalNonce_lookupEnrolledAuthenticationNotRequired, amount: NSDecimalNumber.one(), completion: { (tokenizedCard, error) -> Void in
             XCTAssert(isANonce(tokenizedCard!.nonce))
             XCTAssertNil(error)
             XCTAssert(tokenizedCard!.liabilityShifted)
@@ -96,7 +95,7 @@ class BTThreeDSecureDriver_Tests: XCTestCase {
             expectation.fulfill()
         })
 
-        waitForExpectations(timeout: 3, handler: nil)
+        waitForExpectationsWithTimeout(3, handler: nil)
     }
 
     func testVerification_withCardThatRequiresAuthentication_requestsPresentationOfViewController() {
@@ -128,14 +127,14 @@ class BTThreeDSecureDriver_Tests: XCTestCase {
                 "md": "",
                 "termUrl": "http://example.com"
             ]
-        ] as [String : Any]
+        ]
         mockAPIClient.cannedResponseBody = BTJSON(value: responseBody)
 
-        let threeDSecureDriver = BTThreeDSecureDriver.init(apiClient: mockAPIClient, delegate:viewControllerPresentingDelegate )
+        let threeDSecureDriver = BTThreeDSecureDriver.init(APIClient: mockAPIClient, delegate:viewControllerPresentingDelegate )
         let mockDelegate = MockViewControllerPresentationDelegate()
         threeDSecureDriver.delegate = mockDelegate
 
-        threeDSecureDriver.verifyCard(withNonce: originalNonce_lookupEnrolledAuthenticationRequired, amount: NSDecimalNumber.one) { (tokenizedCard, error) -> Void in }
+        threeDSecureDriver.verifyCardWithNonce(originalNonce_lookupEnrolledAuthenticationRequired, amount: NSDecimalNumber.one()) { (tokenizedCard, error) -> Void in }
 
         XCTAssertNotNil(mockDelegate.lastViewController)
     }
@@ -163,12 +162,12 @@ class BTThreeDSecureDriver_Tests: XCTestCase {
                 "liabilityShiftPossible": false,
                 "liabilityShifted": false,
             ]
-        ] as [String : Any]
+        ]
         mockAPIClient.cannedResponseBody = BTJSON(value: responseBody)
-        let threeDSecureDriver = BTThreeDSecureDriver.init(apiClient: mockAPIClient, delegate:viewControllerPresentingDelegate)
+        let threeDSecureDriver = BTThreeDSecureDriver.init(APIClient: mockAPIClient, delegate:viewControllerPresentingDelegate)
 
-        let expectation = self.expectation(description: "Card is tokenized")
-        threeDSecureDriver.verifyCard(withNonce: originalNonce_lookupCardNotEnrolled, amount: NSDecimalNumber.one) { (tokenizedCard, error) -> Void in
+        let expectation = expectationWithDescription("Card is tokenized")
+        threeDSecureDriver.verifyCardWithNonce(originalNonce_lookupCardNotEnrolled, amount: NSDecimalNumber.one()) { (tokenizedCard, error) -> Void in
             guard let tokenizedCard = tokenizedCard else {
                 XCTFail()
                 return
@@ -181,7 +180,7 @@ class BTThreeDSecureDriver_Tests: XCTestCase {
             expectation.fulfill()
         }
 
-        waitForExpectations(timeout: 2, handler: nil)
+        waitForExpectationsWithTimeout(2, handler: nil)
     }
 }
 

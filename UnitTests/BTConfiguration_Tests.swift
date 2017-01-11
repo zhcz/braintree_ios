@@ -12,7 +12,7 @@ class BTConfiguration_Tests: XCTestCase {
             "some": "things",
             "number": 1,
             "array": [1, 2, 3]])
-        let configuration = BTConfiguration(json: json)
+        let configuration = BTConfiguration(JSON: json)
 
         XCTAssertEqual(configuration.json, json)
     }
@@ -29,7 +29,7 @@ class BTConfiguration_Tests: XCTestCase {
         let configurationJSON = BTJSON(value: [
             "payWithVenmo": [ "accessToken": "some access token" ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
         
         XCTAssertTrue(configuration.isVenmoEnabled)
     }
@@ -38,7 +38,7 @@ class BTConfiguration_Tests: XCTestCase {
         let configurationJSON = BTJSON(value: [
             "payWithVenmo": []
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
         XCTAssertFalse(configuration.isVenmoEnabled)
     }
@@ -47,7 +47,7 @@ class BTConfiguration_Tests: XCTestCase {
         let configurationJSON = BTJSON(value: [
             "payWithVenmo": [ "accessToken": "some access token" ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
         XCTAssertEqual(configuration.venmoAccessToken, "some access token")
     }
@@ -62,14 +62,14 @@ class BTConfiguration_Tests: XCTestCase {
     func testIsPayPalEnabled_returnsPayPalEnabledStatusFromConfigurationJSON() {
         for isPayPalEnabled in [true, false] {
             let configurationJSON = BTJSON(value: [ "paypalEnabled": isPayPalEnabled ])
-            let configuration = BTConfiguration(json: configurationJSON)
+            let configuration = BTConfiguration(JSON: configurationJSON)
 
             XCTAssertTrue(configuration.isPayPalEnabled == isPayPalEnabled)
         }
     }
 
     func testIsPayPalEnabled_whenPayPalEnabledStatusNotPresentInConfigurationJSON_returnsFalse() {
-        let configuration = BTConfiguration(json: BTJSON(value: []))
+        let configuration = BTConfiguration(JSON: BTJSON(value: []))
         XCTAssertFalse(configuration.isPayPalEnabled)
     }
 
@@ -78,7 +78,7 @@ class BTConfiguration_Tests: XCTestCase {
             let configurationJSON = BTJSON(value: [
                 "paypal": [ "billingAgreementsEnabled": isBillingAgreementsEnabled]
                 ])
-            let configuration = BTConfiguration(json: configurationJSON)
+            let configuration = BTConfiguration(JSON: configurationJSON)
             XCTAssertTrue(configuration.isBillingAgreementsEnabled == isBillingAgreementsEnabled)
         }
     }
@@ -90,7 +90,7 @@ class BTConfiguration_Tests: XCTestCase {
             let configurationJSON = BTJSON(value: [
                 "applePay": [ "status": applePayStatus ]
                 ])
-            let configuration = BTConfiguration(json: configurationJSON)
+            let configuration = BTConfiguration(JSON: configurationJSON)
 
             XCTAssertTrue(configuration.isApplePayEnabled)
         }
@@ -100,7 +100,7 @@ class BTConfiguration_Tests: XCTestCase {
         let configurationJSON = BTJSON(value: [
             "applePay": [ "status": 3.14 ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
         XCTAssertFalse(configuration.isApplePayEnabled)
     }
@@ -109,7 +109,7 @@ class BTConfiguration_Tests: XCTestCase {
         let configurationJSON = BTJSON(value: [
             "applePay": [ "status": "off" ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
         XCTAssertFalse(configuration.isApplePayEnabled)
     }
@@ -118,7 +118,7 @@ class BTConfiguration_Tests: XCTestCase {
         let configurationJSON = BTJSON(value: [
             "applePay": [ "countryCode": "US" ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
         XCTAssertEqual(configuration.applePayCountryCode!, "US")
     }
@@ -127,7 +127,7 @@ class BTConfiguration_Tests: XCTestCase {
         let configurationJSON = BTJSON(value: [
             "applePay": [ "currencyCode": "USD" ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
         XCTAssertEqual(configuration.applePayCurrencyCode!, "USD")
     }
@@ -136,7 +136,7 @@ class BTConfiguration_Tests: XCTestCase {
         let configurationJSON = BTJSON(value: [
             "applePay": [ "merchantIdentifier": "com.merchant.braintree-unit-tests" ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
         XCTAssertEqual(configuration.applePayMerchantIdentifier!, "com.merchant.braintree-unit-tests")
     }
@@ -145,16 +145,16 @@ class BTConfiguration_Tests: XCTestCase {
         let configurationJSON = BTJSON(value: [
             "applePay": [ "supportedNetworks": ["visa", "mastercard", "amex"] ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
-        XCTAssertEqual(configuration.applePaySupportedNetworks!, [PKPaymentNetwork.visa, PKPaymentNetwork.masterCard, PKPaymentNetwork.amex])
+        XCTAssertEqual(configuration.applePaySupportedNetworks!, [PKPaymentNetworkVisa, PKPaymentNetworkMasterCard, PKPaymentNetworkAmex])
     }
 
     func testApplePaySupportedNetworks_whenRunningBelowiOS9_doesNotReturnDiscover() {
         let configurationJSON = BTJSON(value: [
             "applePay": [ "supportedNetworks": ["discover"] ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
         guard #available(iOS 9, *) else {
             XCTAssertEqual(configuration.applePaySupportedNetworks!, [])
@@ -167,16 +167,16 @@ class BTConfiguration_Tests: XCTestCase {
         let configurationJSON = BTJSON(value: [
             "applePay": [ "supportedNetworks": ["discover"] ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
-        XCTAssertEqual(configuration.applePaySupportedNetworks!, [PKPaymentNetwork.discover])
+        XCTAssertEqual(configuration.applePaySupportedNetworks!, [PKPaymentNetworkDiscover])
     }
 
     func testApplePaySupportedNetworks_doesNotPassesThroughUnknownValuesFromConfiguration() {
         let configurationJSON = BTJSON(value: [
             "applePay": [ "supportedNetworks": ["ChinaUnionPay", "Interac", "PrivateLabel"] ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
         XCTAssertEqual(configuration.applePaySupportedNetworks!, [])
 
@@ -188,7 +188,7 @@ class BTConfiguration_Tests: XCTestCase {
         let configurationJSON = BTJSON(value: [
             "unionPay": [ "enabled": true ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
         XCTAssertTrue(configuration.isUnionPayEnabled)
     }
@@ -197,7 +197,7 @@ class BTConfiguration_Tests: XCTestCase {
         let configurationJSON = BTJSON(value: [
             "unionPay": [ "enabled": false ]
             ])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
         XCTAssertFalse(configuration.isUnionPayEnabled)
 
@@ -205,9 +205,103 @@ class BTConfiguration_Tests: XCTestCase {
 
     func testIsUnionPayEnabled_whenUnionPayEnabledFromConfigurationJSONIsMissing_returnsFalse() {
         let configurationJSON = BTJSON(value: [])
-        let configuration = BTConfiguration(json: configurationJSON)
+        let configuration = BTConfiguration(JSON: configurationJSON)
 
         XCTAssertFalse(configuration.isUnionPayEnabled)
     }
 
+    // MARK: - Visa Checkout category methods
+
+    func testIsVisaCheckoutEnabled_whenVisaCheckoutFromConfigurationJSONExists() {
+        let configurationJSON = BTJSON(value: [
+            "visaCheckout": [:]
+        ])
+        let configuration = BTConfiguration(JSON: configurationJSON)
+
+        XCTAssertTrue(configuration.isVisaCheckoutEnabled)
+    }
+
+    func testIsVisaCheckoutEnabled_whenVisaCheckoutFromConfigurationJSONIsMissing() {
+        let configurationJSON = BTJSON(value: [:])
+        let configuration = BTConfiguration(JSON: configurationJSON)
+
+        XCTAssertFalse(configuration.isVisaCheckoutEnabled)
+    }
+
+    func testVisaCheckoutSupportedNetworks_returnsSupportedNetworks() {
+        let configurationJSON = BTJSON(value: [
+            "visaCheckout": [
+                "supportedCardTypes": [
+                    "Visa",
+                    "MasterCard",
+                    "American Express",
+                    "Discover"
+                ]
+            ]
+            ])
+        let configuration = BTConfiguration(JSON: configurationJSON)
+
+        XCTAssertEqual(configuration.visaCheckoutSupportedNetworks, ["Visa", "MasterCard", "AMEX", "Discover"])
+    }
+
+    func testVisaCheckoutSupportedNetworks_whenSupportedCardTypesContainsUnknownNetworks_doesNotIncludeThem() {
+        let configurationJSON = BTJSON(value: [
+            "visaCheckout": [
+                "supportedCardTypes": [
+                    "Visa",
+                    "MasterCard",
+                    "American Express",
+                    "Discover",
+                    "MysteryCard",
+                    "Braintree Express"
+                ]
+            ]
+            ])
+        let configuration = BTConfiguration(JSON: configurationJSON)
+
+        XCTAssertEqual(configuration.visaCheckoutSupportedNetworks, ["Visa", "MasterCard", "AMEX", "Discover"])
+    }
+
+    func testVisaCheckoutSupportedNetworks_whenSupportedCardTypesIsMissing_returnsEmptyList() {
+        let configurationJSON = BTJSON(value: [:])
+        let configuration = BTConfiguration(JSON: configurationJSON)
+
+        XCTAssertEqual(configuration.visaCheckoutSupportedNetworks, [])
+    }
+
+    func testVisaCheckoutAPIKey_whenAPIKeyIsMissing_returnsNil() {
+        let configurationJSON = BTJSON(value: [:])
+        let configuration = BTConfiguration(JSON: configurationJSON)
+
+        XCTAssertNil(configuration.visaCheckoutAPIKey)
+    }
+
+    func testVisaCheckoutAPIKey_returnsAPIKey() {
+        let configurationJSON = BTJSON(value: [
+            "visaCheckout": [
+                "apikey": "my-visa-checkout-api-key"
+            ]
+            ])
+        let configuration = BTConfiguration(JSON: configurationJSON)
+
+        XCTAssertEqual(configuration.visaCheckoutAPIKey, "my-visa-checkout-api-key")
+    }
+
+    func testVisaCheckoutExternalClientId_whenExternalClientIdIsMissing_returnsNil() {
+        let configurationJSON = BTJSON(value: [:])
+        let configuration = BTConfiguration(JSON: configurationJSON)
+
+        XCTAssertNil(configuration.visaCheckoutExternalClientId)
+    }
+
+    func testVisaCheckoutExternalClientId_returnsExternalClientId() {
+        let configurationJSON = BTJSON(value: [
+            "visaCheckout": [
+                "externalClientId": "my-visa-checkout-external-client-id"
+            ]
+            ])
+        let configuration = BTConfiguration(JSON: configurationJSON)
+
+        XCTAssertEqual(configuration.visaCheckoutExternalClientId, "my-visa-checkout-external-client-id")
+    }
 }

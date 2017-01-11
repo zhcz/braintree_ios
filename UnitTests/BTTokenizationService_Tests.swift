@@ -32,48 +32,49 @@ class BTTokenizationService_Tests: XCTestCase {
     }
 
     func testTokenizeType_whenTypeIsRegistered_callsTokenizationBlock() {
-        let expectation = self.expectation(description: "tokenization block called")
+        let expectation = expectationWithDescription("tokenization block called")
         tokenizationService.registerType("MyType") { _ -> Void in
             expectation.fulfill()
         }
 
-        tokenizationService.tokenizeType("MyType", options: nil, with: BTAPIClient(authorization: "development_testing_integration_merchant_id")!) { _ -> Void in
-        //nada
-        }
+        tokenizationService.tokenizeType("MyType", withAPIClient: BTAPIClient(authorization: "development_testing_integration_merchant_id")!) { _ -> Void in }
 
-        waitForExpectations(timeout: 2, handler: nil)
+        waitForExpectationsWithTimeout(2, handler: nil)
     }
 
     func testTokenizeType_whenCalledWithOptions_callsTokenizationBlockAndPassesInOptions() {
-        let expectation = self.expectation(description: "tokenization block called")
+        let expectation = expectationWithDescription("tokenization block called")
         let expectedOptions = ["Some Custom Option Key": "The Option Value"]
         tokenizationService.registerType("MyType") { (_, options, _) -> Void in
             XCTAssertEqual(options as! [String : String], expectedOptions)
             expectation.fulfill()
         }
 
-        tokenizationService.tokenizeType("MyType", options: expectedOptions, with:BTAPIClient(authorization: "development_testing_integration_merchant_id")!) { _ -> Void in }
+        tokenizationService.tokenizeType("MyType", options: expectedOptions, withAPIClient:BTAPIClient(authorization: "development_testing_integration_merchant_id")!) { _ -> Void in }
 
-        waitForExpectations(timeout: 2, handler: nil)
+        waitForExpectationsWithTimeout(2, handler: nil)
     }
 
     func testTokenizeType_whenTypeIsNotRegistered_returnsError() {
-        let expectation = self.expectation(description: "Callback invoked")
-        tokenizationService.tokenizeType("UnknownType", options: nil, with:BTAPIClient(authorization: "development_testing_integration_merchant_id")!) { nonce, error -> Void in
+        let expectation = expectationWithDescription("Callback invoked")
+        tokenizationService.tokenizeType("UnknownType", withAPIClient:BTAPIClient(authorization: "development_testing_integration_merchant_id")!) { nonce, error -> Void in
             XCTAssertNil(nonce)
-            guard let error = error as? NSError else {return}
-            XCTAssertEqual(error.domain, BTTokenizationServiceErrorDomain)
-            XCTAssertEqual(error.code, BTTokenizationServiceError.typeNotRegistered.rawValue)
+            if let error = error {
+                XCTAssertEqual(error.domain, BTTokenizationServiceErrorDomain)
+                XCTAssertEqual(error.code, BTTokenizationServiceError.TypeNotRegistered.rawValue)
+            } else {
+                XCTFail("Should have gotten an error!")
+            }
             expectation.fulfill()
         }
 
-        waitForExpectations(timeout: 2, handler:nil)
+        waitForExpectationsWithTimeout(2, handler:nil)
     }
 
     // MARK: - Payment-specific tests
 
     func testSingleton_hasExpectedTypesAvailable() {
-        let sharedService = BTTokenizationService.shared()
+        let sharedService = BTTokenizationService.sharedService()
 
         XCTAssertTrue(sharedService.isTypeAvailable("PayPal"))
         XCTAssertTrue(sharedService.isTypeAvailable("Venmo"))
@@ -81,7 +82,7 @@ class BTTokenizationService_Tests: XCTestCase {
     }
 
     func testSingleton_canTokenizeCards() {
-        let sharedService = BTTokenizationService.shared()
+        let sharedService = BTTokenizationService.sharedService()
         let card = BTCard(number: "4111111111111111", expirationMonth: "12", expirationYear: "2020", cvv: "123")
         let stubAPIClient = MockAPIClient(authorization: "development_fake_key")!
         stubAPIClient.cannedResponseBody = BTJSON(value: [
@@ -93,20 +94,20 @@ class BTTokenizationService_Tests: XCTestCase {
             ]
         ])
 
-        let expectation = self.expectation(description: "Card is tokenized")
-        sharedService.tokenizeType("Card", options: card.parameters() as? [String : AnyObject], with: stubAPIClient) { (cardNonce, error) -> Void in
+        let expectation = expectationWithDescription("Card is tokenized")
+        sharedService.tokenizeType("Card", options: card.parameters() as? [String : AnyObject], withAPIClient: stubAPIClient) { (cardNonce, error) -> Void in
             XCTAssertEqual(cardNonce?.nonce, "a-nonce")
             XCTAssertNil(error)
             expectation.fulfill()
         }
 
-        waitForExpectations(timeout: 2, handler: nil)
+        waitForExpectationsWithTimeout(2, handler: nil)
     }
 
     // This test only verifies that SFSafariViewController is presented
     func testSingleton_canAuthorizePayPalThroughSFSafariViewController() {
         if #available(iOS 9.0, *) {
-            let sharedService = BTTokenizationService.shared()
+            let sharedService = BTTokenizationService.sharedService()
             let stubAPIClient = MockAPIClient(authorization: "development_fake_key")!
             stubAPIClient.cannedConfigurationResponseBody = BTJSON(value: [
                 "paypalEnabled": true,
@@ -114,18 +115,19 @@ class BTTokenizationService_Tests: XCTestCase {
                     "environment": "offline",
                     "privacyUrl": "",
                     "userAgreementUrl": "",
+                    "environment": "offline",
                 ] ])
             let mockDelegate = MockViewControllerPresentationDelegate()
             BTAppSwitch.setReturnURLScheme("com.braintreepayments.Demo.payments")
 
-            sharedService.tokenizeType("PayPal", options: [BTTokenizationServiceViewPresentingDelegateOption: mockDelegate], with: stubAPIClient) { _ -> Void in }
+            sharedService.tokenizeType("PayPal", options: [BTTokenizationServiceViewPresentingDelegateOption: mockDelegate], withAPIClient: stubAPIClient) { _ -> Void in }
 
             XCTAssertTrue(mockDelegate.lastViewController is SFSafariViewController)
         }
     }
 
     func testSingleton_canAuthorizeVenmo() {
-        let sharedService = BTTokenizationService.shared()
+        let sharedService = BTTokenizationService.sharedService()
         BTConfiguration.setBetaPaymentOption("venmo", isEnabled: true)
         BTOCMockHelper().stubApplicationCanOpenURL()
         BTAppSwitch.setReturnURLScheme("com.braintreepayments.Demo.payments")
@@ -137,10 +139,10 @@ class BTTokenizationService_Tests: XCTestCase {
                 "merchantId": "stubmerchantid",
             ],
         ])
-        let mockDelegate = MockAppSwitchDelegate(willPerform: expectation(description: "Will authorize Venmo Account"), didPerform: nil)
+        let mockDelegate = MockAppSwitchDelegate(willPerform: expectationWithDescription("Will authorize Venmo Account"), didPerform: nil)
 
-        sharedService.tokenizeType("Venmo", options: [BTTokenizationServiceAppSwitchDelegateOption: mockDelegate], with: stubAPIClient) { _ -> Void in }
+        sharedService.tokenizeType("Venmo", options: [BTTokenizationServiceAppSwitchDelegateOption: mockDelegate], withAPIClient: stubAPIClient) { _ -> Void in }
 
-        waitForExpectations(timeout: 2, handler: nil)
+        waitForExpectationsWithTimeout(2, handler: nil)
     }
 }
