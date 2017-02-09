@@ -50,6 +50,42 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable, readonly, copy) NSString *shippingAddressCountryCode;
 
 /*!
+ @brief First name for the billing address.
+ */
+@property (nonatomic, nullable, readonly, copy) NSString *billingAddressFirstName;
+
+/*!
+ @brief LastName for the billing address.
+ */
+@property (nonatomic, nullable, readonly, copy) NSString *billingAddressLastName;
+
+/*!
+ @brief Street address for the billing address.
+ */
+@property (nonatomic, nullable, readonly, copy) NSString *billingAddressStreetAddress;
+
+/*!
+ @brief Locality for the billing address.
+ */
+@property (nonatomic, nullable, readonly, copy) NSString *billingAddressLocality;
+
+/*!
+ @brief Region for the billing address.
+ */
+@property (nonatomic, nullable, readonly, copy) NSString *billingAddressRegion;
+
+/*!
+ @brief Postal code for the billing address.
+ */
+@property (nonatomic, nullable, readonly, copy) NSString *billingAddressPostalCode;
+
+/*!
+ @brief Country code for the billing address.
+ */
+@property (nonatomic, nullable, readonly, copy) NSString *billingAddressCountryCode;
+
+
+/*!
  @brief The user's first name.
  */
 @property (nonatomic, nullable, readonly, copy) NSString *userDataFirstName;

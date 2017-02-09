@@ -153,6 +153,9 @@
                                                                                  @"shippingAddress" : @{
                                                                                          @"firstName": @"shippingAddressFirstName"
                                                                                          },
+                                                                                 @"billingAddress" : @{
+                                                                                         @"firstName": @"billingAddressFirstName"
+                                                                                         },
                                                                                  @"userData" : @{
                                                                                          @"userEmail" : @"userDataEmail"
                                                                                          }}]
@@ -169,6 +172,7 @@
         XCTAssertTrue([tokenizedVisaCheckoutCard.nonce isEqualToString:@"a-visa-checkout-nonce"]);
         XCTAssertTrue([tokenizedVisaCheckoutCard.type isEqualToString:@"Visa"]);
         XCTAssertTrue([tokenizedVisaCheckoutCard.shippingAddressFirstName isEqualToString:@"shippingAddressFirstName"]);
+        XCTAssertTrue([tokenizedVisaCheckoutCard.billingAddressFirstName isEqualToString:@"billingAddressFirstName"]);
         XCTAssertTrue([tokenizedVisaCheckoutCard.userDataEmail isEqualToString:@"userDataEmail"]);
 
         [expectation fulfill];
