@@ -300,7 +300,11 @@
     if (field == self.numberField) {
         self.cvvField.cardType = self.numberField.cardType;
     }
-    [self advanceToNextInvalidFieldFrom:field];
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self advanceToNextInvalidFieldFrom:field];
+    });
+
     // Trigger KVO
     self.valid = self.valid;
     if ([self.delegate respondsToSelector:@selector(cardFormViewDidChange:)]) {
