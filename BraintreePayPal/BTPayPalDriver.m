@@ -32,6 +32,7 @@ typedef NS_ENUM(NSUInteger, BTPayPalPaymentType) {
 
 @interface BTPayPalDriver () <SFSafariViewControllerDelegate>
 @property (nonatomic, assign) BOOL becameActiveAfterSFAuthenticationSessionModal;
+@property (nonatomic, assign) BOOL forceCancelSFAuthenticationSessionModal;
 @end
 
 @implementation BTPayPalDriver
@@ -389,7 +390,8 @@ typedef NS_ENUM(NSUInteger, BTPayPalPaymentType) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
         if (@available(iOS 11.0, *)) {
             if (self.safariAuthenticationSession) {
-                // do nothing
+                self.forceCancelSFAuthenticationSessionModal = YES;
+                [self.safariAuthenticationSession cancel];
             } else if (self.safariViewController) {
                 [self informDelegatePresentingViewControllerNeedsDismissal];
             } else {
@@ -539,7 +541,10 @@ typedef NS_ENUM(NSUInteger, BTPayPalPaymentType) {
             NSString *queryForAuthSession = [urlComponents.query stringByAppendingString:@"&bt_int_type=2"];
             urlComponents.query = queryForAuthSession;
             self.safariAuthenticationSession = [[SFAuthenticationSession alloc] initWithURL:urlComponents.URL callbackURLScheme:self.returnURLScheme completionHandler:^(NSURL * _Nullable callbackURL, NSError * _Nullable error) {
-                if (error) {
+                if (self.forceCancelSFAuthenticationSessionModal) {
+                    // force cancel to dismiss the view
+                    return;
+                } else if (error) {
                     if (error.domain == SFAuthenticationErrorDomain && error.code == SFAuthenticationErrorCanceledLogin) {
                         if (self.becameActiveAfterSFAuthenticationSessionModal) {
                             [self.apiClient sendAnalyticsEvent:@"ios.sfauthsession.cancel.web"];
@@ -556,6 +561,7 @@ typedef NS_ENUM(NSUInteger, BTPayPalPaymentType) {
             }];
             if (self.safariAuthenticationSession != nil) {
                 self.becameActiveAfterSFAuthenticationSessionModal = NO;
+                self.forceCancelSFAuthenticationSessionModal = NO;
                 self.isSFAuthenticationSessionStarted = [self.safariAuthenticationSession start];
                 if (self.isSFAuthenticationSessionStarted) {
                     [self.apiClient sendAnalyticsEvent:@"ios.sfauthsession.start.succeeded"];
