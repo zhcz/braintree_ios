@@ -29,24 +29,20 @@
 - (void)handleRequest:(BTPaymentFlowRequest *)request client:(BTAPIClient *)apiClient paymentDriverDelegate:(id<BTPaymentFlowDriverDelegate>)delegate {
     self.paymentFlowDriverDelegate = delegate;
     BTIdealRequest *idealRequest = (BTIdealRequest *)request;
-    [apiClient fetchOrReturnRemoteConfiguration:^(BTConfiguration *configuration, NSError *configurationError) {
+    [apiClient fetchOrReturnRemoteConfiguration:^(__unused BTConfiguration *configuration, NSError *configurationError) {
         if (configurationError) {
             [delegate onPaymentComplete:nil error:configurationError];
             return;
         }
-        
-        if (!configuration.isIdealEnabled) {
-            NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain code:BTPaymentFlowDriverErrorTypeDisabled userInfo:@{NSLocalizedDescriptionKey: @"iDEAL is not enabled for this merchant"}];
-            [delegate onPaymentComplete:nil error:error];
-            return;
-        } else if ([self.paymentFlowDriverDelegate returnURLScheme] == nil || [[self.paymentFlowDriverDelegate returnURLScheme] isEqualToString:@""]) {
+
+        if ([self.paymentFlowDriverDelegate returnURLScheme] == nil || [[self.paymentFlowDriverDelegate returnURLScheme] isEqualToString:@""]) {
             [[BTLogger sharedLogger] critical:@"iDEAL requires a return URL scheme to be configured via [BTAppSwitch setReturnURLScheme:]"];
             NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
                                                  code:BTPaymentFlowDriverErrorTypeInvalidReturnURL
                                              userInfo:@{NSLocalizedDescriptionKey: @"UIApplication failed to perform app or browser switch."}];
             [delegate onPaymentComplete:nil error:error];
             return;
-        } else if (idealRequest.orderId == nil || idealRequest.issuer == nil || idealRequest.amount == nil || idealRequest.currency == nil) {
+        } else if (idealRequest.amount == nil) {
             [[BTLogger sharedLogger] critical:@"BTIdealRequest amount, currency, issuer and orderId can not be nil."];
             NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
                                                  code:BTPaymentFlowDriverErrorTypeIntegration
@@ -54,33 +50,54 @@
             [delegate onPaymentComplete:nil error:error];
             return;
         }
+
         
-        NSString *redirectUrl = [NSString stringWithFormat: @"%@/mobile/ideal-redirect/0.0.0/index.html?redirect_url=%@://x-callback-url/braintree/ideal/",
-                                 configuration.idealAssetsUrl,
-                                 [delegate returnURLScheme]
-                                 ];
-        
-        NSDictionary *params = @{
-                                 @"route_id": configuration.routeId,
-                                 @"order_id": idealRequest.orderId,
-                                 @"issuer": idealRequest.issuer,
+        NSMutableDictionary *params = [@{
                                  @"amount": idealRequest.amount,
-                                 @"currency": idealRequest.currency,
-                                 @"redirect_url": redirectUrl,
-                                 };
-        
-        [apiClient POST:@"ideal-payments"
-                  parameters:params
-                  httpType: BTAPIClientHTTPTypeBraintreeAPI
-                  completion:^(BTJSON * _Nullable body, __unused NSHTTPURLResponse * _Nullable response, NSError * _Nullable error)
-         {
+                                 @"funding_source": @"ideal",
+                                 @"intent": @"sale"
+                                 } mutableCopy];
+
+        params[@"return_url"] = [NSString stringWithFormat:@"%@%@", [delegate returnURLScheme], @"://x-callback-url/braintree/ideal/success"];
+        params[@"cancel_url"] = [NSString stringWithFormat:@"%@%@", [delegate returnURLScheme], @"://x-callback-url/braintree/ideal/cancel"];
+
+        if (idealRequest.address) {
+            params[@"line1"] = idealRequest.address.streetAddress;
+            params[@"line2"] = idealRequest.address.extendedAddress;
+            params[@"city"] = idealRequest.address.locality;
+            params[@"state"] = idealRequest.address.region;
+            params[@"postal_code"] = idealRequest.address.postalCode;
+            params[@"country_code"] = idealRequest.address.countryCodeAlpha2;
+        }
+
+        if (idealRequest.currencyCode) {
+            params[@"currency_iso_code"] = idealRequest.currencyCode;
+        }
+
+        if (idealRequest.firstName) {
+            params[@"first_name"] = idealRequest.firstName;
+        }
+
+        if (idealRequest.lastName) {
+            params[@"last_name"] = idealRequest.lastName;
+        }
+
+        if (idealRequest.email) {
+            params[@"payer_email"] = idealRequest.email;
+        }
+
+        if (idealRequest.phone) {
+            params[@"phone"] = idealRequest.phone;
+        }
+
+        [apiClient POST:@"v1/paypal_hermes/create_payment_resource"
+                   parameters:params
+                   completion:^(BTJSON *body, __unused NSHTTPURLResponse *response, NSError *error) {
              if (!error) {
                  BTIdealResult *idealResult = [[BTIdealResult alloc] init];
-                 idealResult.idealId = [body[@"data"][@"id"] asString];
-                 idealResult.shortIdealId = [body[@"data"][@"short_id"] asString];
-                 idealResult.status = [body[@"data"][@"status"] asString];
+                 idealResult.idealId = [body[@"paymentResource"][@"paymentToken"] asString];
                  self.idealId = idealResult.idealId;
-                 NSString *approvalUrl = [body[@"data"][@"approval_url"] asString];
+                 NSString *approvalUrl = [body[@"paymentResource"][@"redirectUrl"] asString];
                  NSURL *url = [NSURL URLWithString:approvalUrl];
                  if (self.idealPaymentFlowDelegate) {
                      [self.idealPaymentFlowDelegate idealPaymentStarted:idealResult];

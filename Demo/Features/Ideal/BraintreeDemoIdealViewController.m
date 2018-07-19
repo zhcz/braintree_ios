@@ -21,7 +21,7 @@
         } else {
             self.paymentButton.hidden = NO;
             self.progressBlock(@"Ready!");
-            BTAPIClient *idealClient = [[BTAPIClient alloc] initWithAuthorization:clientToken];
+            BTAPIClient *idealClient = [[BTAPIClient alloc] initWithAuthorization:@"sandbox_f252zhq7_hh4cpc39zq4rgjcg"];
             self.paymentFlowDriver = [[BTPaymentFlowDriver alloc] initWithAPIClient:idealClient];
             self.paymentFlowDriver.viewControllerPresentingDelegate = self;
         }
@@ -53,42 +53,27 @@
 
 - (void)idealButtonTapped {
     self.paymentIDLabel.text = nil;
-
-    [self.paymentFlowDriver fetchIssuingBanks:^(NSArray<BTIdealBank *> * _Nullable banks, NSError * _Nullable error) {
-        if (error) {
-            self.progressBlock([NSString stringWithFormat:@"Error: %@", error]);
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
-                [actionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:^(__unused UIAlertAction *action) {
-                    //noop
-                }]];
-                
-                for (BTIdealBank *bank in banks) {
-                    UIAlertAction *alertAction = [UIAlertAction actionWithTitle:bank.name style:UIAlertActionStyleDefault handler:^(__unused UIAlertAction *action) {
-                        
-                        [self startPaymentWithBank:bank];
-                    }];
-                    
-                    NSURL *url = [NSURL URLWithString:bank.imageUrl];
-                    NSData *data = [NSData dataWithContentsOfURL:url];
-                    UIImage *image = [UIImage imageWithData:data scale:2.25];
-                    [alertAction setValue:[image imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal] forKey:@"image"];
-                    [actionSheet addAction:alertAction];
-                }
-                
-                [self presentViewController:actionSheet animated:YES completion:nil];
-            });
-        }
-    }];
+    [self startPaymentWithBank];
 }
 
-- (void)startPaymentWithBank:(BTIdealBank *)bank {
+- (void)startPaymentWithBank {
+    BTAPIClient *idealClient = [[BTAPIClient alloc] initWithAuthorization:@"sandbox_f252zhq7_hh4cpc39zq4rgjcg"];
+    self.paymentFlowDriver = [[BTPaymentFlowDriver alloc] initWithAPIClient:idealClient];
+    self.paymentFlowDriver.viewControllerPresentingDelegate = self;
+
     BTIdealRequest *request = [[BTIdealRequest alloc] init];
-    request.orderId = [[[NSUUID UUID] UUIDString] substringToIndex:16];
-    request.currency = @"EUR";
-    request.amount = @"1.00";
-    request.issuer = bank.issuerId;
+    request.currencyCode = @"EUR";
+    request.amount = @"1.01";
+    request.firstName = @"Linh";
+    request.lastName = @"Ngo";
+    request.phone = @"639847934";
+    request.address = [BTPostalAddress new];
+    request.address.countryCodeAlpha2 = @"NL";
+    request.address.postalCode = @"2585 GJ";
+    request.address.streetAddress = @"836486 of 22321 Park Lake";
+    request.address.locality = @"Den Haag";
+    request.email = @"lingo-buyer@paypal.com";
+
     request.idealPaymentFlowDelegate = self;
     [self.paymentFlowDriver startPaymentFlow:request completion:^(BTPaymentFlowResult * _Nonnull result, NSError * _Nonnull error) {
         if (error) {

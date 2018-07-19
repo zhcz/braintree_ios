@@ -18,26 +18,39 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BTIdealRequest : BTPaymentFlowRequest <BTPaymentFlowRequestDelegate>
 
 /**
- A unique ID provided by you to associate with this transaction.
+ Optional: The address of the customer. An error will occur if this address is not valid.
  */
-@property (nonatomic, copy) NSString *orderId;
-
-/**
- The issuing bank for the iDEAL transaction.
- 
- See `BTPaymentFlowDriver+Ideal` and `BTIdealBank`.
- */
-@property (nonatomic, copy) NSString *issuer;
-
-/**
- The currency of the transaction.
- */
-@property (nonatomic, copy) NSString *currency;
+@property (nonatomic, nullable, strong) BTPostalAddress *address;
 
 /**
  The amount for the transaction.
  */
 @property (nonatomic, copy) NSString *amount;
+
+/**
+ Optional: A valid ISO currency code to use for the transaction. Defaults to merchant currency code if not set.
+ */
+@property (nonatomic, nullable, copy) NSString *currencyCode;
+
+/**
+ Payer email of the customer.
+ */
+@property (nonatomic, copy) NSString *email;
+
+/**
+ First name of the customer.
+ */
+@property (nonatomic, copy) NSString *firstName;
+
+/**
+ Last name of the customer.
+ */
+@property (nonatomic, copy) NSString *lastName;
+
+/**
+ Phone number of the customer.
+ */
+@property (nonatomic, copy) NSString *phone;
 
 /**
  A delegate for receiving information about the iDEAL payment.
