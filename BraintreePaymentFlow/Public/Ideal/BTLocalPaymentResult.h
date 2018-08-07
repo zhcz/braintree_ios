@@ -6,23 +6,24 @@
 #endif
 #import "BTPaymentFlowResult.h"
 
+// TODO 
 /**
- The result of an iDEAL payment flow
+ The result of an LocalPayment payment flow
  */
-@interface BTIdealResult : BTPaymentFlowResult
+@interface BTLocalPaymentResult : BTPaymentFlowResult
 
 /**
- The status of the iDEAL payment. Possible values are [PENDING, COMPLETE, FAILED].
+ The status of the LocalPayment payment. Possible values are [PENDING, COMPLETE, FAILED].
  */
 @property (nonatomic, copy) NSString *status;
 
 /**
- The identifier for the iDEAL payment.
+ The identifier for the LocalPayment payment.
  */
 @property (nonatomic, copy) NSString *idealId;
 
 /**
- A shortened form of the identifier for the iDEAL payment.
+ A shortened form of the identifier for the LocalPayment payment.
  */
 @property (nonatomic, copy) NSString *shortIdealId;
 

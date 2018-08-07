@@ -1,5 +1,5 @@
-#import "BTIdealRequest.h"
-#import "BTConfiguration+Ideal.h"
+#import "BTLocalPaymentRequest.h"
+#import "BTConfiguration+LocalPayment.h"
 #if __has_include("BTLogger_Internal.h")
 #import "BTLogger_Internal.h"
 #else
@@ -11,24 +11,24 @@
 #import <BraintreeCore/BTAPIClient_Internal.h>
 #endif
 #import "BTPaymentFlowDriver_Internal.h"
-#import "BTIdealRequest.h"
+#import "BTLocalPaymentRequest.h"
 #import "Braintree-Version.h"
 #import <SafariServices/SafariServices.h>
-#import "BTIdealResult.h"
-#import "BTPaymentFlowDriver+Ideal_Internal.h"
+#import "BTLocalPaymentResult.h"
+#import "BTPaymentFlowDriver+LocalPayment_Internal.h"
 
-@interface BTIdealRequest ()
+@interface BTLocalPaymentRequest ()
 
 @property (nonatomic, copy, nullable) NSString *idealId;
 @property (nonatomic, weak) id<BTPaymentFlowDriverDelegate> paymentFlowDriverDelegate;
 
 @end
 
-@implementation BTIdealRequest
+@implementation BTLocalPaymentRequest
 
 - (void)handleRequest:(BTPaymentFlowRequest *)request client:(BTAPIClient *)apiClient paymentDriverDelegate:(id<BTPaymentFlowDriverDelegate>)delegate {
     self.paymentFlowDriverDelegate = delegate;
-    BTIdealRequest *idealRequest = (BTIdealRequest *)request;
+    BTLocalPaymentRequest *idealRequest = (BTLocalPaymentRequest *)request;
     [apiClient fetchOrReturnRemoteConfiguration:^(__unused BTConfiguration *configuration, NSError *configurationError) {
         if (configurationError) {
             [delegate onPaymentComplete:nil error:configurationError];
@@ -58,8 +58,8 @@
                                  @"intent": @"sale"
                                  } mutableCopy];
 
-        params[@"return_url"] = [NSString stringWithFormat:@"%@%@", [delegate returnURLScheme], @"://x-callback-url/braintree/ideal/success"];
-        params[@"cancel_url"] = [NSString stringWithFormat:@"%@%@", [delegate returnURLScheme], @"://x-callback-url/braintree/ideal/cancel"];
+        params[@"return_url"] = [NSString stringWithFormat:@"%@%@", [delegate returnURLScheme], @"://x-callback-url/braintree/local-payment/success"];
+        params[@"cancel_url"] = [NSString stringWithFormat:@"%@%@", [delegate returnURLScheme], @"://x-callback-url/braintree/local-payment/cancel"];
 
         if (idealRequest.address) {
             params[@"line1"] = idealRequest.address.streetAddress;
@@ -94,13 +94,13 @@
                    parameters:params
                    completion:^(BTJSON *body, __unused NSHTTPURLResponse *response, NSError *error) {
              if (!error) {
-                 BTIdealResult *idealResult = [[BTIdealResult alloc] init];
+                 BTLocalPaymentResult *idealResult = [[BTLocalPaymentResult alloc] init];
                  idealResult.idealId = [body[@"paymentResource"][@"paymentToken"] asString];
                  self.idealId = idealResult.idealId;
                  NSString *approvalUrl = [body[@"paymentResource"][@"redirectUrl"] asString];
                  NSURL *url = [NSURL URLWithString:approvalUrl];
-                 if (self.idealPaymentFlowDelegate) {
-                     [self.idealPaymentFlowDelegate idealPaymentStarted:idealResult];
+                 if (self.localPaymentFlowDelegate) {
+                     [self.localPaymentFlowDelegate localPaymentStarted:idealResult];
                  }
                  [delegate onPaymentWithURL:url error:error];
              } else {
@@ -111,18 +111,17 @@
 }
 
 - (void)handleOpenURL:(__unused NSURL *)url {
-    BTPaymentFlowDriver *paymentFlowDriver = [[BTPaymentFlowDriver alloc] initWithAPIClient:[self.paymentFlowDriverDelegate apiClient]];
-    [paymentFlowDriver checkStatus:self.idealId completion:^(BTPaymentFlowResult * _Nonnull result, NSError * _Nonnull error) {
-        [self.paymentFlowDriverDelegate onPaymentComplete:result error:error];
-    }];
+    // TODO parse return URL
+    //[self.paymentFlowDriverDelegate onPaymentComplete:result error:error];
 }
 
 - (BOOL)canHandleAppSwitchReturnURL:(NSURL *)url sourceApplication:(__unused NSString *)sourceApplication {
-    return [url.host isEqualToString:@"x-callback-url"] && [url.path hasPrefix:@"/braintree/ideal"];
+    return [url.host isEqualToString:@"x-callback-url"] && [url.path hasPrefix:@"/braintree/local-payment"];
 }
 
 - (NSString *)paymentFlowName {
-    return @"ideal";
+    // TODO add in payment type?
+    return @"local-payment";
 }
 
 @end

@@ -9,13 +9,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class BTIdealResult;
-@protocol BTIdealRequestDelegate;
+@class BTLocalPaymentResult;
+@protocol BTLocalPaymentRequestDelegate;
 
 /**
  Used to initialize an iDEAL payment flow
  */
-@interface BTIdealRequest : BTPaymentFlowRequest <BTPaymentFlowRequestDelegate>
+@interface BTLocalPaymentRequest : BTPaymentFlowRequest <BTPaymentFlowRequestDelegate>
 
 /**
  Optional: The address of the customer. An error will occur if this address is not valid.
@@ -55,21 +55,21 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  A delegate for receiving information about the iDEAL payment.
  */
-@property (nonatomic, weak) id<BTIdealRequestDelegate> idealPaymentFlowDelegate;
+@property (nonatomic, weak) id<BTLocalPaymentRequestDelegate> localPaymentFlowDelegate;
 
 @end
 
 /**
  Protocol for iDEAl payment flow
  */
-@protocol BTIdealRequestDelegate
+@protocol BTLocalPaymentRequestDelegate
 
 @required
 
 /**
  Returns the BTIdealResult with the iDEAL ID and status of `PENDING` before the flow starts. The ID should be used in conjunction with webhooks to detect the change in status.
  */
-- (void)idealPaymentStarted:(BTIdealResult *)result;
+- (void)localPaymentStarted:(BTLocalPaymentResult *)result;
 
 @end
 
