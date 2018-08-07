@@ -57,11 +57,12 @@
 }
 
 - (void)startPaymentWithBank {
-    BTAPIClient *idealClient = [[BTAPIClient alloc] initWithAuthorization:@"sandbox_f252zhq7_hh4cpc39zq4rgjcg"];
-    self.paymentFlowDriver = [[BTPaymentFlowDriver alloc] initWithAPIClient:idealClient];
+    BTAPIClient *client = [[BTAPIClient alloc] initWithAuthorization:@"sandbox_f252zhq7_hh4cpc39zq4rgjcg"];
+    self.paymentFlowDriver = [[BTPaymentFlowDriver alloc] initWithAPIClient:client];
     self.paymentFlowDriver.viewControllerPresentingDelegate = self;
 
     BTLocalPaymentRequest *request = [[BTLocalPaymentRequest alloc] init];
+    request.paymentType = @"ideal";
     request.currencyCode = @"EUR";
     request.amount = @"1.01";
     request.firstName = @"Linh";
@@ -73,9 +74,9 @@
     request.address.streetAddress = @"836486 of 22321 Park Lake";
     request.address.locality = @"Den Haag";
     request.email = @"lingo-buyer@paypal.com";
-
     request.localPaymentFlowDelegate = self;
-    [self.paymentFlowDriver startPaymentFlow:request completion:^(BTPaymentFlowResult * _Nonnull result, NSError * _Nonnull error) {
+
+    void (^paymentFlowCompletionBlock)(BTPaymentFlowResult *, NSError *) = ^(BTPaymentFlowResult * _Nonnull result, NSError * _Nonnull error) {
         if (error) {
             if (error.code == BTPaymentFlowDriverErrorTypeCanceled) {
                 self.progressBlock(@"Cancelled🎲");
@@ -85,26 +86,10 @@
         } else if (result) {
             BTLocalPaymentResult *idealResult = (BTLocalPaymentResult *)result;
             NSLog(@"%@", idealResult);
-            
-//            [self.paymentFlowDriver pollForCompletionWithId:idealResult.idealId retries:7 delay:5000 completion:^(BTPaymentFlowResult * _Nullable result, NSError * _Nullable error) {
-//                BTIdealResult *idealResult = (BTIdealResult *)result;
-//                if (error) {
-//                    // ERROR
-//                    self.progressBlock([NSString stringWithFormat:@"Error: %@", error]);
-//                } else {
-//                    NSLog(@"Ideal Status: %@", idealResult.status);
-//                    NSLog(@"Ideal ID: %@", idealResult.idealId);
-//                    NSLog(@"Ideal Short ID: %@", idealResult.shortIdealId);
-//                    UIAlertController *actionSheet = [UIAlertController alertControllerWithTitle:idealResult.status message:idealResult.idealId preferredStyle:UIAlertControllerStyleActionSheet];
-//                    [self presentViewController:actionSheet animated:YES completion:nil];
-//                    [actionSheet addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", nil) style:UIAlertActionStyleDefault handler:^(__unused UIAlertAction *action) {
-//                        //noop
-//                    }]];
-//                    self.progressBlock([NSString stringWithFormat:@"iDEAL Status: %@", idealResult.status]);
-//                }
-//            }];
         }
-    }];
+    };
+
+    [self.paymentFlowDriver startPaymentFlow:request completion:paymentFlowCompletionBlock];
 }
 
 #pragma mark BTAppSwitchDelegate
@@ -119,8 +104,10 @@
 
 #pragma mark BTIdealRequestDelegate
 
-- (void)localPaymentStarted:(BTLocalPaymentResult *)result {
-    self.paymentIDLabel.text = [NSString stringWithFormat:@"LocalPayment ID: %@", [result idealId]];
+- (void)localPaymentStarted:(__unused BTLocalPaymentRequest *)request paymentId:(NSString *)paymentId start:(void (^)(void))start {
+    self.paymentIDLabel.text = [NSString stringWithFormat:@"LocalPayment ID: %@", paymentId];
+    // Do preprocessing if necessary before calling start()
+    start();
 }
 
 @end

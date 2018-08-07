@@ -19,7 +19,7 @@
 
 @interface BTLocalPaymentRequest ()
 
-@property (nonatomic, copy, nullable) NSString *idealId;
+@property (nonatomic, copy, nullable) NSString *paymentId;
 @property (nonatomic, weak) id<BTPaymentFlowDriverDelegate> paymentFlowDriverDelegate;
 
 @end
@@ -28,7 +28,7 @@
 
 - (void)handleRequest:(BTPaymentFlowRequest *)request client:(BTAPIClient *)apiClient paymentDriverDelegate:(id<BTPaymentFlowDriverDelegate>)delegate {
     self.paymentFlowDriverDelegate = delegate;
-    BTLocalPaymentRequest *idealRequest = (BTLocalPaymentRequest *)request;
+    BTLocalPaymentRequest *localPaymentRequest = (BTLocalPaymentRequest *)request;
     [apiClient fetchOrReturnRemoteConfiguration:^(__unused BTConfiguration *configuration, NSError *configurationError) {
         if (configurationError) {
             [delegate onPaymentComplete:nil error:configurationError];
@@ -42,67 +42,77 @@
                                              userInfo:@{NSLocalizedDescriptionKey: @"UIApplication failed to perform app or browser switch."}];
             [delegate onPaymentComplete:nil error:error];
             return;
-        } else if (idealRequest.amount == nil) {
-            [[BTLogger sharedLogger] critical:@"BTIdealRequest amount, currency, issuer and orderId can not be nil."];
+        } else if (localPaymentRequest.localPaymentFlowDelegate == nil) {
+            [[BTLogger sharedLogger] critical:@"BTLocalPaymentRequest localPaymentFlowDelegate can not be nil."];
             NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
                                                  code:BTPaymentFlowDriverErrorTypeIntegration
-                                             userInfo:@{NSLocalizedDescriptionKey: @"Failed to begin iDEAL payment flow: BTIdealRequest amount, currency, issuer and orderId can not be nil."}];
+                                             userInfo:@{NSLocalizedDescriptionKey: @"Failed to begin payment flow: BTLocalPaymentRequest localPaymentFlowDelegate can not be nil."}];
+            [delegate onPaymentComplete:nil error:error];
+            return;
+        } else if (localPaymentRequest.amount == nil) {
+            [[BTLogger sharedLogger] critical:@"BTLocalPaymentRequest amount can not be nil."];
+            NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
+                                                 code:BTPaymentFlowDriverErrorTypeIntegration
+                                             userInfo:@{NSLocalizedDescriptionKey: @"Failed to begin payment flow: BTLocalPaymentRequest amount can not be nil."}];
             [delegate onPaymentComplete:nil error:error];
             return;
         }
 
         
         NSMutableDictionary *params = [@{
-                                 @"amount": idealRequest.amount,
-                                 @"funding_source": @"ideal",
+                                 @"amount": localPaymentRequest.amount,
                                  @"intent": @"sale"
                                  } mutableCopy];
 
         params[@"return_url"] = [NSString stringWithFormat:@"%@%@", [delegate returnURLScheme], @"://x-callback-url/braintree/local-payment/success"];
         params[@"cancel_url"] = [NSString stringWithFormat:@"%@%@", [delegate returnURLScheme], @"://x-callback-url/braintree/local-payment/cancel"];
 
-        if (idealRequest.address) {
-            params[@"line1"] = idealRequest.address.streetAddress;
-            params[@"line2"] = idealRequest.address.extendedAddress;
-            params[@"city"] = idealRequest.address.locality;
-            params[@"state"] = idealRequest.address.region;
-            params[@"postal_code"] = idealRequest.address.postalCode;
-            params[@"country_code"] = idealRequest.address.countryCodeAlpha2;
+        if (localPaymentRequest.address) {
+            params[@"line1"] = localPaymentRequest.address.streetAddress;
+            params[@"line2"] = localPaymentRequest.address.extendedAddress;
+            params[@"city"] = localPaymentRequest.address.locality;
+            params[@"state"] = localPaymentRequest.address.region;
+            params[@"postal_code"] = localPaymentRequest.address.postalCode;
+            params[@"country_code"] = localPaymentRequest.address.countryCodeAlpha2;
         }
 
-        if (idealRequest.currencyCode) {
-            params[@"currency_iso_code"] = idealRequest.currencyCode;
+        if (localPaymentRequest.paymentType) {
+            params[@"funding_source"] = localPaymentRequest.paymentType;
         }
 
-        if (idealRequest.firstName) {
-            params[@"first_name"] = idealRequest.firstName;
+        if (localPaymentRequest.currencyCode) {
+            params[@"currency_iso_code"] = localPaymentRequest.currencyCode;
         }
 
-        if (idealRequest.lastName) {
-            params[@"last_name"] = idealRequest.lastName;
+        if (localPaymentRequest.firstName) {
+            params[@"first_name"] = localPaymentRequest.firstName;
         }
 
-        if (idealRequest.email) {
-            params[@"payer_email"] = idealRequest.email;
+        if (localPaymentRequest.lastName) {
+            params[@"last_name"] = localPaymentRequest.lastName;
         }
 
-        if (idealRequest.phone) {
-            params[@"phone"] = idealRequest.phone;
+        if (localPaymentRequest.email) {
+            params[@"payer_email"] = localPaymentRequest.email;
+        }
+
+        if (localPaymentRequest.phone) {
+            params[@"phone"] = localPaymentRequest.phone;
         }
 
         [apiClient POST:@"v1/paypal_hermes/create_payment_resource"
                    parameters:params
                    completion:^(BTJSON *body, __unused NSHTTPURLResponse *response, NSError *error) {
              if (!error) {
-                 BTLocalPaymentResult *idealResult = [[BTLocalPaymentResult alloc] init];
-                 idealResult.idealId = [body[@"paymentResource"][@"paymentToken"] asString];
-                 self.idealId = idealResult.idealId;
+                 self.paymentId = [body[@"paymentResource"][@"paymentToken"] asString];
                  NSString *approvalUrl = [body[@"paymentResource"][@"redirectUrl"] asString];
                  NSURL *url = [NSURL URLWithString:approvalUrl];
+                 // TODO verify id and url are present?
                  if (self.localPaymentFlowDelegate) {
-                     [self.localPaymentFlowDelegate localPaymentStarted:idealResult];
+                     [self.localPaymentFlowDelegate localPaymentStarted:self paymentId:self.paymentId start:^{
+                         [delegate onPaymentWithURL:url error:error];
+                     }];
                  }
-                 [delegate onPaymentWithURL:url error:error];
              } else {
                  [delegate onPaymentWithURL:nil error:error];
              }

@@ -18,6 +18,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BTLocalPaymentRequest : BTPaymentFlowRequest <BTPaymentFlowRequestDelegate>
 
 /**
+ The amount for the transaction.
+ */
+@property (nonatomic, copy) NSString *paymentType;
+
+/**
  Optional: The address of the customer. An error will occur if this address is not valid.
  */
 @property (nonatomic, nullable, strong) BTPostalAddress *address;
@@ -69,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Returns the BTIdealResult with the iDEAL ID and status of `PENDING` before the flow starts. The ID should be used in conjunction with webhooks to detect the change in status.
  */
-- (void)localPaymentStarted:(BTLocalPaymentResult *)result;
+- (void)localPaymentStarted:(BTLocalPaymentRequest *)request paymentId:(NSString *)paymentId start:(void(^)(void))start;;
 
 @end
 
