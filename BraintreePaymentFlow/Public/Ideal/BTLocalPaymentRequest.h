@@ -13,24 +13,24 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol BTLocalPaymentRequestDelegate;
 
 /**
- Used to initialize an iDEAL payment flow
+ Used to initialize a local payment flow
  */
-@interface BTLocalPaymentRequest : BTPaymentFlowRequest <BTPaymentFlowRequestDelegate>
+@interface BTLocalPaymentRequest : BTPaymentFlowRequest <NSCopying, BTPaymentFlowRequestDelegate>
 
 /**
- The amount for the transaction.
+ The type of payment.
  */
-@property (nonatomic, copy) NSString *paymentType;
+@property (nonatomic, nullable, copy) NSString *paymentType;
 
 /**
  Optional: The address of the customer. An error will occur if this address is not valid.
  */
-@property (nonatomic, nullable, strong) BTPostalAddress *address;
+@property (nonatomic, nullable, copy) BTPostalAddress *address;
 
 /**
  The amount for the transaction.
  */
-@property (nonatomic, copy) NSString *amount;
+@property (nonatomic, nullable, copy) NSString *amount;
 
 /**
  Optional: A valid ISO currency code to use for the transaction. Defaults to merchant currency code if not set.
@@ -40,27 +40,27 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Payer email of the customer.
  */
-@property (nonatomic, copy) NSString *email;
+@property (nonatomic, nullable, copy) NSString *email;
 
 /**
  First name of the customer.
  */
-@property (nonatomic, copy) NSString *firstName;
+@property (nonatomic, nullable, copy) NSString *firstName;
 
 /**
  Last name of the customer.
  */
-@property (nonatomic, copy) NSString *lastName;
+@property (nonatomic, nullable, copy) NSString *lastName;
 
 /**
  Phone number of the customer.
  */
-@property (nonatomic, copy) NSString *phone;
+@property (nonatomic, nullable, copy) NSString *phone;
 
 /**
  A delegate for receiving information about the iDEAL payment.
  */
-@property (nonatomic, weak) id<BTLocalPaymentRequestDelegate> localPaymentFlowDelegate;
+@property (nonatomic, nullable, weak) id<BTLocalPaymentRequestDelegate> localPaymentFlowDelegate;
 
 @end
 

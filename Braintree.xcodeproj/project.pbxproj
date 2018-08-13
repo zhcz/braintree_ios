@@ -86,6 +86,7 @@
 		039A8BDA1F9E993500D607E7 /* BTAmericanExpressRewardsBalance_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 039A8BD91F9E993500D607E7 /* BTAmericanExpressRewardsBalance_Tests.swift */; };
 		03B368B31CAD95D300CDFC9C /* BraintreeDemoDropInLegacyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 03B368B21CAD95D300CDFC9C /* BraintreeDemoDropInLegacyViewController.m */; };
 		03BFA5D91FB4CA650003ABCE /* BTThreeDSecure_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03BFA5D81FB4CA650003ABCE /* BTThreeDSecure_Tests.swift */; };
+		03C41071211E336E00CFB2AF /* PayPalOneTouch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A50C3B6F1C1A29C500612D90 /* PayPalOneTouch.framework */; };
 		03CED23A1F8D77C9000A5F4F /* BTThreeDSecureLookup.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CED2391F8D77C9000A5F4F /* BTThreeDSecureLookup.m */; };
 		03CED23B1F8D77C9000A5F4F /* BTThreeDSecureLookup.m in Sources */ = {isa = PBXBuildFile; fileRef = 03CED2391F8D77C9000A5F4F /* BTThreeDSecureLookup.m */; };
 		03CED23F1F8D8A76000A5F4F /* BraintreeCard.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7C889901B5F043B007A0E9C /* BraintreeCard.framework */; };
@@ -789,6 +790,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2DE12F081B59BE0100EA1BCF;
 			remoteInfo = BraintreeCore;
+		};
+		03C4106F211E334900CFB2AF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A75DA344192138F000D997A2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A50C3B6E1C1A29C500612D90;
+			remoteInfo = PayPalOneTouch;
 		};
 		03CFEF3C1CD31242006D2DA5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1933,6 +1941,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				03C41071211E336E00CFB2AF /* PayPalOneTouch.framework in Frameworks */,
 				03CED23F1F8D8A76000A5F4F /* BraintreeCard.framework in Frameworks */,
 				03502C9B1E9C0D3900F15EE6 /* BraintreeCore.framework in Frameworks */,
 			);
@@ -3866,6 +3875,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				03C41070211E334900CFB2AF /* PBXTargetDependency */,
 				41FDEBF71FBA25610044794D /* PBXTargetDependency */,
 				03C2FDBA1E9C2C0700151DFD /* PBXTargetDependency */,
 			);
@@ -5405,6 +5415,11 @@
 			isa = PBXTargetDependency;
 			target = 2DE12F081B59BE0100EA1BCF /* BraintreeCore */;
 			targetProxy = 03C2FDB91E9C2C0700151DFD /* PBXContainerItemProxy */;
+		};
+		03C41070211E334900CFB2AF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A50C3B6E1C1A29C500612D90 /* PayPalOneTouch */;
+			targetProxy = 03C4106F211E334900CFB2AF /* PBXContainerItemProxy */;
 		};
 		03CFEF3D1CD31242006D2DA5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

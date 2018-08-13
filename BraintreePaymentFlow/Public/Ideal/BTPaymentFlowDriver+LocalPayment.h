@@ -4,6 +4,8 @@
 #import <BraintreeCore/BraintreeCore.h>
 #endif
 #import "BTPaymentFlowDriver.h"
+#import "BTLocalPaymentResult.h"
+#import "BTLocalPaymentRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

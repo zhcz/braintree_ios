@@ -13,20 +13,22 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.progressBlock(@"Loading iDEAL Merchant Account...");
-    self.paymentButton.hidden = YES;
+    self.paymentButton.hidden = NO;
     [self setUpPaymentIDField];
-    [[BraintreeDemoMerchantAPI sharedService] fetchClientTokenWithMerchantAccountId:@"ideal_eur" completion:^(__unused NSString * clientToken, NSError *error) {
-        if (error) {
-            NSLog(@"%@", error);
-        } else {
-            self.paymentButton.hidden = NO;
-            self.progressBlock(@"Ready!");
-            BTAPIClient *idealClient = [[BTAPIClient alloc] initWithAuthorization:@"sandbox_f252zhq7_hh4cpc39zq4rgjcg"];
-            self.paymentFlowDriver = [[BTPaymentFlowDriver alloc] initWithAPIClient:idealClient];
-            self.paymentFlowDriver.viewControllerPresentingDelegate = self;
-        }
-    }];
-    
+    self.progressBlock(@"Ready!");
+
+//    [[BraintreeDemoMerchantAPI sharedService] fetchClientTokenWithMerchantAccountId:@"ideal_eur" completion:^(__unused NSString * clientToken, NSError *error) {
+//        if (error) {
+//            NSLog(@"%@", error);
+//        } else {
+//            self.paymentButton.hidden = NO;
+//            self.progressBlock(@"Ready!");
+//            BTAPIClient *idealClient = [[BTAPIClient alloc] initWithAuthorization:@"sandbox_f252zhq7_hh4cpc39zq4rgjcg"];
+//            self.paymentFlowDriver = [[BTPaymentFlowDriver alloc] initWithAPIClient:idealClient];
+//            self.paymentFlowDriver.viewControllerPresentingDelegate = self;
+//        }
+//    }];
+
     self.title = NSLocalizedString(@"iDEAL", nil);
 }
 
@@ -76,7 +78,7 @@
     request.email = @"lingo-buyer@paypal.com";
     request.localPaymentFlowDelegate = self;
 
-    void (^paymentFlowCompletionBlock)(BTPaymentFlowResult *, NSError *) = ^(BTPaymentFlowResult * _Nonnull result, NSError * _Nonnull error) {
+    void (^paymentFlowCompletionBlock)(BTPaymentFlowResult *, NSError *) = ^(BTPaymentFlowResult * _Nullable result, NSError * _Nullable error) {
         if (error) {
             if (error.code == BTPaymentFlowDriverErrorTypeCanceled) {
                 self.progressBlock(@"Cancelled🎲");
@@ -84,8 +86,10 @@
                 self.progressBlock([NSString stringWithFormat:@"Error: %@", error]);
             }
         } else if (result) {
-            BTLocalPaymentResult *idealResult = (BTLocalPaymentResult *)result;
-            NSLog(@"%@", idealResult);
+            BTLocalPaymentResult *localPaymentResult = (BTLocalPaymentResult *)result;
+            NSLog(@"%@", localPaymentResult);
+            BTPaymentMethodNonce *n = [[BTPaymentMethodNonce alloc] initWithNonce:localPaymentResult.nonce localizedDescription:localPaymentResult.localizedDescription];
+            self.completionBlock(n);
         }
     };
 
