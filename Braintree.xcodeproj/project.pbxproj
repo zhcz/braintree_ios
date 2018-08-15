@@ -2275,14 +2275,14 @@
 				038C7FBC1EA1648900241ABE /* BTPaymentFlowDriver.m */,
 				038C7FBE1EA1648900241ABE /* BTPaymentFlowRequest.m */,
 				038C7FBF1EA1648900241ABE /* BTPaymentFlowResult.m */,
-				038C7FC01EA1648900241ABE /* Ideal */,
+				038C7FC01EA1648900241ABE /* LocalPayment */,
 				038C7FC61EA1648900241ABE /* Public */,
 				03800A4B1F045F4B00068F53 /* ThreeDSecure */,
 			);
 			path = BraintreePaymentFlow;
 			sourceTree = "<group>";
 		};
-		038C7FC01EA1648900241ABE /* Ideal */ = {
+		038C7FC01EA1648900241ABE /* LocalPayment */ = {
 			isa = PBXGroup;
 			children = (
 				038C7FC11EA1648900241ABE /* BTConfiguration+LocalPayment.m */,
@@ -2291,7 +2291,7 @@
 				038C7FC51EA1648900241ABE /* BTPaymentFlowDriver+LocalPayment.m */,
 				B680778A1ECA44D500BFB9D0 /* BTPaymentFlowDriver+LocalPayment_Internal.h */,
 			);
-			path = Ideal;
+			path = LocalPayment;
 			sourceTree = "<group>";
 		};
 		038C7FC61EA1648900241ABE /* Public */ = {
@@ -2302,12 +2302,12 @@
 				038C7FC91EA1648900241ABE /* BTPaymentFlowRequest.h */,
 				038C7FCA1EA1648900241ABE /* BTPaymentFlowResult.h */,
 				03800A521F045F5600068F53 /* ThreeDSecure */,
-				038C7FCB1EA1648900241ABE /* Ideal */,
+				038C7FCB1EA1648900241ABE /* LocalPayment */,
 			);
 			path = Public;
 			sourceTree = "<group>";
 		};
-		038C7FCB1EA1648900241ABE /* Ideal */ = {
+		038C7FCB1EA1648900241ABE /* LocalPayment */ = {
 			isa = PBXGroup;
 			children = (
 				038C7FCC1EA1648900241ABE /* BTConfiguration+LocalPayment.h */,
@@ -2315,7 +2315,7 @@
 				038C7FCF1EA1648900241ABE /* BTLocalPaymentResult.h */,
 				038C7FD01EA1648900241ABE /* BTPaymentFlowDriver+LocalPayment.h */,
 			);
-			path = Ideal;
+			path = LocalPayment;
 			sourceTree = "<group>";
 		};
 		03B368B01CAD95D300CDFC9C /* Drop In Old */ = {

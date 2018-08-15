@@ -9,7 +9,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- The result of an LocalPayment payment flow
+ The result of an local payment flow
  */
 @interface BTLocalPaymentResult : BTPaymentFlowResult
 

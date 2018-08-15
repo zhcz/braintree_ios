@@ -70,11 +70,11 @@
                                              userInfo:@{NSLocalizedDescriptionKey: @"Failed to begin payment flow: BTLocalPaymentRequest localPaymentFlowDelegate can not be nil."}];
             [delegate onPaymentComplete:nil error:error];
             return;
-        } else if (localPaymentRequest.amount == nil) {
-            [[BTLogger sharedLogger] critical:@"BTLocalPaymentRequest amount can not be nil."];
+        } else if (localPaymentRequest.amount == nil || localPaymentRequest.paymentType == nil) {
+            [[BTLogger sharedLogger] critical:@"BTLocalPaymentRequest amount and paymentType can not be nil."];
             NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
                                                  code:BTPaymentFlowDriverErrorTypeIntegration
-                                             userInfo:@{NSLocalizedDescriptionKey: @"Failed to begin payment flow: BTLocalPaymentRequest amount can not be nil."}];
+                                             userInfo:@{NSLocalizedDescriptionKey: @"Failed to begin payment flow: BTLocalPaymentRequest amount and paymentType can not be nil."}];
             [delegate onPaymentComplete:nil error:error];
             return;
         }
@@ -82,6 +82,7 @@
         
         NSMutableDictionary *params = [@{
                                  @"amount": localPaymentRequest.amount,
+                                 @"funding_source": localPaymentRequest.paymentType,
                                  @"intent": @"sale"
                                  } mutableCopy];
 
@@ -95,10 +96,6 @@
             params[@"state"] = localPaymentRequest.address.region;
             params[@"postal_code"] = localPaymentRequest.address.postalCode;
             params[@"country_code"] = localPaymentRequest.address.countryCodeAlpha2;
-        }
-
-        if (localPaymentRequest.paymentType) {
-            params[@"funding_source"] = localPaymentRequest.paymentType;
         }
 
         if (localPaymentRequest.currencyCode) {
@@ -119,6 +116,10 @@
 
         if (localPaymentRequest.phone) {
             params[@"phone"] = localPaymentRequest.phone;
+        }
+
+        if (localPaymentRequest.merchantAccountId) {
+            params[@"merchant_account_id"] = localPaymentRequest.merchantAccountId;
         }
 
         [apiClient POST:@"v1/paypal_hermes/create_payment_resource"

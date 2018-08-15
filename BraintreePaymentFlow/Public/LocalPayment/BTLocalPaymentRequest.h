@@ -23,6 +23,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable, copy) NSString *paymentType;
 
 /**
+ Optional: A non-default merchant account to use for tokenization.
+ */
+@property (nonatomic, nullable, copy) NSString *merchantAccountId;
+
+/**
  Optional: The address of the customer. An error will occur if this address is not valid.
  */
 @property (nonatomic, nullable, copy) BTPostalAddress *address;
@@ -38,22 +43,22 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable, copy) NSString *currencyCode;
 
 /**
- Payer email of the customer.
+ Optional: Payer email of the customer.
  */
 @property (nonatomic, nullable, copy) NSString *email;
 
 /**
- First name of the customer.
+ Optional: First name of the customer.
  */
 @property (nonatomic, nullable, copy) NSString *firstName;
 
 /**
- Last name of the customer.
+ Optional: Last name of the customer.
  */
 @property (nonatomic, nullable, copy) NSString *lastName;
 
 /**
- Phone number of the customer.
+ Optional: Phone number of the customer.
  */
 @property (nonatomic, nullable, copy) NSString *phone;
 
