@@ -49,6 +49,13 @@
                                              userInfo:@{NSLocalizedDescriptionKey: @"UIApplication failed to perform app or browser switch."}];
             [delegate onPaymentComplete:nil error:error];
             return;
+        } else if (![configuration isLocalPaymentEnabled]) {
+            [[BTLogger sharedLogger] critical:@"Enable PayPal for this merchant in the Braintree Control Panel to use Local Payments."];
+            NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
+                                                 code:BTPaymentFlowDriverErrorTypeDisabled
+                                             userInfo:@{NSLocalizedDescriptionKey: @"Enable PayPal for this merchant in the Braintree Control Panel to use Local Payments."}];
+            [delegate onPaymentComplete:nil error:error];
+            return;
         } else if (localPaymentRequest.localPaymentFlowDelegate == nil) {
             [[BTLogger sharedLogger] critical:@"BTLocalPaymentRequest localPaymentFlowDelegate can not be nil."];
             NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
@@ -61,13 +68,6 @@
             NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
                                                  code:BTPaymentFlowDriverErrorTypeIntegration
                                              userInfo:@{NSLocalizedDescriptionKey: @"Failed to begin payment flow: BTLocalPaymentRequest amount and paymentType can not be nil."}];
-            [delegate onPaymentComplete:nil error:error];
-            return;
-        } else if (![configuration isLocalPaymentEnabled]) {
-            [[BTLogger sharedLogger] critical:@"Enable PayPal for this merchant in the Braintree Control Panel to use Local Payments."];
-            NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
-                                                 code:BTPaymentFlowDriverErrorTypeIntegration
-                                             userInfo:@{NSLocalizedDescriptionKey: @"Enable PayPal for this merchant in the Braintree Control Panel to use Local Payments."}];
             [delegate onPaymentComplete:nil error:error];
             return;
         }
@@ -129,7 +129,7 @@
                  } else {
                      [[BTLogger sharedLogger] critical:@"Payment cannot be processed: the redirectUrl or paymentToken is nil.  Contact Braintree support if the error persists."];
                      NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
-                                                          code:BTPaymentFlowDriverErrorTypeIntegration
+                                                          code:BTPaymentFlowDriverErrorTypeAppSwitchFailed
                                                       userInfo:@{NSLocalizedDescriptionKey: @"Payment cannot be processed: the redirectUrl or paymentToken is nil.  Contact Braintree support if the error persists."}];
                      [delegate onPaymentComplete:nil error:error];
                      return;
