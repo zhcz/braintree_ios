@@ -17,13 +17,11 @@
               shippingAddress:(BTPostalAddress *)shippingAddress
              clientMetadataId:(NSString *)clientMetadataId
                       payerId:(NSString *)payerId
-                    isDefault:(BOOL)isDefault
 {
     if (self = [super init]) {
         _nonce = nonce;
         _localizedDescription = description;
-        _type = @"LocalPayment";
-        _isDefault = isDefault;
+        _type = @"PayPalAccount";
         _email = email;
         _firstName = firstName;
         _lastName = lastName;

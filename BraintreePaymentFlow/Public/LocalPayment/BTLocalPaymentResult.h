@@ -14,6 +14,16 @@ NS_ASSUME_NONNULL_BEGIN
 @interface BTLocalPaymentResult : BTPaymentFlowResult
 
 /**
+ The billing address.
+ */
+@property (nonatomic, nullable, readonly, strong) BTPostalAddress *billingAddress;
+
+/**
+ Client Metadata Id associated with this transaction.
+ */
+@property (nonatomic, nullable, readonly, copy) NSString *clientMetadataId;
+
+/**
  Payer's email address
  */
 @property (nonatomic, nullable, readonly, copy) NSString *email;
@@ -29,29 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable, readonly, copy) NSString *lastName;
 
 /**
- Payer's phone number.
+ A localized description of the payment info
  */
-@property (nonatomic, nullable, readonly, copy) NSString *phone;
-
-/**
- The billing address.
- */
-@property (nonatomic, nullable, readonly, strong) BTPostalAddress *billingAddress;
-
-/**
- The shipping address.
- */
-@property (nonatomic, nullable, readonly, strong) BTPostalAddress *shippingAddress;
-
-/**
- Client Metadata Id associated with this transaction.
- */
-@property (nonatomic, nullable, readonly, copy) NSString *clientMetadataId;
-
-/**
- Optional. Payer Id associated with this transaction.
- */
-@property (nonatomic, nullable, readonly, copy) NSString *payerId;
+@property (nonatomic, readonly, copy) NSString *localizedDescription;
 
 /**
  The one-time use payment method nonce
@@ -59,19 +49,24 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, copy) NSString *nonce;
 
 /**
- A localized description of the payment info
+ Optional. Payer Id associated with this transaction.
  */
-@property (nonatomic, readonly, copy) NSString *localizedDescription;
+@property (nonatomic, nullable, readonly, copy) NSString *payerId;
+
+/**
+ Payer's phone number.
+ */
+@property (nonatomic, nullable, readonly, copy) NSString *phone;
+
+/**
+ The shipping address.
+ */
+@property (nonatomic, nullable, readonly, strong) BTPostalAddress *shippingAddress;
 
 /**
  The type of the tokenized data, e.g. PayPal, Venmo, MasterCard, Visa, Amex
  */
 @property (nonatomic, readonly, copy) NSString *type;
-
-/**
- True if this nonce is the customer's default payment method, otherwise false.
- */
-@property (nonatomic, readonly, assign) BOOL isDefault;
 
 - (instancetype)initWithNonce:(NSString *)nonce
                   description:(NSString *)description
@@ -82,8 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
                billingAddress:(BTPostalAddress *)billingAddress
               shippingAddress:(BTPostalAddress *)shippingAddress
              clientMetadataId:(NSString *)clientMetadataId
-                      payerId:(NSString *)payerId
-                    isDefault:(BOOL)isDefault;
+                      payerId:(NSString *)payerId;
 
 @end
 

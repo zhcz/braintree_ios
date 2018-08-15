@@ -100,6 +100,30 @@ class BTLocalPayment_UnitTests: XCTestCase {
         waitForExpectations(timeout: 2, handler: nil)
     }
 
+    func testStartPayment_postsAllCreationParameters() {
+        let viewControllerPresentingDelegate = MockViewControllerPresentationDelegate()
+
+        viewControllerPresentingDelegate.requestsPresentationOfViewControllerExpectation = self.expectation(description: "Delegate received requestsPresentationOfViewController")
+
+        mockAPIClient.cannedConfigurationResponseBody = BTJSON(value: [ "paypalEnabled": true ])
+
+        let driver = BTPaymentFlowDriver(apiClient: mockAPIClient)
+        driver.viewControllerPresentingDelegate = viewControllerPresentingDelegate
+        mockAPIClient.cannedResponseBody = BTJSON(value: ["paymentResource": [
+            "redirectUrl": "https://www.somebankurl.com",
+            "paymentToken": "123aaa-123-543-777",
+            ] ])
+
+        localPaymentRequest.merchantAccountId = "customer-nl-merchant-account"
+        driver.startPaymentFlow(localPaymentRequest) { (result, error) in
+
+        }
+
+        waitForExpectations(timeout: 4, handler: nil)
+
+        XCTAssertEqual(self.mockAPIClient.lastPOSTParameters!["merchant_account_id"] as? String, "customer-nl-merchant-account")
+    }
+
     func testStartPayment_displaysSafariViewControllerWhenAvailable() {
         let viewControllerPresentingDelegate = MockViewControllerPresentationDelegate()
         
@@ -284,6 +308,9 @@ class BTLocalPayment_UnitTests: XCTestCase {
             XCTAssertNotNil(result)
             guard let localPaymentResult = result as! BTLocalPaymentResult? else {return}
 
+            XCTAssertEqual(localPaymentResult.clientMetadataId, "89d377ae78244447a3f78ada7d01b270")
+            XCTAssertEqual(localPaymentResult.type, "PayPalAccount")
+            XCTAssertEqual(localPaymentResult.payerId, "PCKXQCZ6J3YXU")
             XCTAssertEqual(localPaymentResult.nonce, "f689056d-aee1-421e-9d10-f2c9b34d4d6f")
             paymentFinishedExpectation!.fulfill()
         }
@@ -292,8 +319,25 @@ class BTLocalPayment_UnitTests: XCTestCase {
 
         let responseBody = [
             "paypalAccounts": [[
+                "consumed": false,
+                "description": "PayPal",
                 "details": [
-
+                    "correlationId": "89d377ae78244447a3f78ada7d01b270",
+                    "payerInfo": [
+                        "countryCode": "NL",
+                        "email": "lingo-buyer@paypal.com",
+                        "firstName": "Linh",
+                        "lastName": "Ngo",
+                        "payerId": "PCKXQCZ6J3YXU",
+                        "shippingAddress": [
+                            "city": "Den Haag",
+                            "countryCode": "NL",
+                            "line1": "836486 of 22321 Park Lake",
+                            "postalCode": "2585 GJ",
+                            "recipientName": "Linh Ngo",
+                            "state": "",
+                        ],
+                    ],
                 ],
                 "nonce": "f689056d-aee1-421e-9d10-f2c9b34d4d6f",
                 "type": "PayPalAccount",

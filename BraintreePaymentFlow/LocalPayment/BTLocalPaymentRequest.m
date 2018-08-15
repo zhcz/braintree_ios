@@ -197,7 +197,6 @@
                  NSString *lastName = [details[@"payerInfo"][@"lastName"] asString];
                  NSString *phone = [details[@"payerInfo"][@"phone"] asString];
                  NSString *payerId = [details[@"payerInfo"][@"payerId"] asString];
-                 BOOL isDefault = [payPalAccount[@"default"] isTrue];
 
                  BTPostalAddress *shippingAddress = [self.class shippingOrBillingAddressFromJSON:details[@"payerInfo"][@"shippingAddress"]];
                  BTPostalAddress *billingAddress = [self.class shippingOrBillingAddressFromJSON:details[@"payerInfo"][@"billingAddress"]];
@@ -223,8 +222,7 @@
                                                                                              billingAddress:billingAddress
                                                                                             shippingAddress:shippingAddress
                                                                                            clientMetadataId:clientMetadataId
-                                                                                                    payerId:payerId
-                                                                                                  isDefault:isDefault];
+                                                                                                    payerId:payerId];
                  [self.paymentFlowDriverDelegate onPaymentComplete:tokenizedLocalPayment error:nil];
              }
          }];
