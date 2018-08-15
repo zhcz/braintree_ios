@@ -32,20 +32,6 @@
 
 @implementation BTLocalPaymentRequest
 
-- (id)copyWithZone:(__unused NSZone *)zone {
-    BTLocalPaymentRequest *request = [[BTLocalPaymentRequest alloc] init];
-    request.paymentType = self.paymentType;
-    request.address = [self.address copy];
-    request.amount = self.amount;
-    request.currencyCode = self.currencyCode;
-    request.email = self.email;
-    request.firstName = self.firstName;
-    request.lastName = self.lastName;
-    request.phone = self.phone;
-    request.localPaymentFlowDelegate = self.localPaymentFlowDelegate;
-    return request;
-}
-
 - (void)handleRequest:(BTPaymentFlowRequest *)request client:(BTAPIClient *)apiClient paymentDriverDelegate:(id<BTPaymentFlowDriverDelegate>)delegate {
     self.paymentFlowDriverDelegate = delegate;
     BTLocalPaymentRequest *localPaymentRequest = (BTLocalPaymentRequest *)request;
@@ -57,7 +43,7 @@
         }
 
         if ([self.paymentFlowDriverDelegate returnURLScheme] == nil || [[self.paymentFlowDriverDelegate returnURLScheme] isEqualToString:@""]) {
-            [[BTLogger sharedLogger] critical:@"iDEAL requires a return URL scheme to be configured via [BTAppSwitch setReturnURLScheme:]"];
+            [[BTLogger sharedLogger] critical:@"Local Payment requires a return URL scheme to be configured via [BTAppSwitch setReturnURLScheme:]"];
             NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
                                                  code:BTPaymentFlowDriverErrorTypeInvalidReturnURL
                                              userInfo:@{NSLocalizedDescriptionKey: @"UIApplication failed to perform app or browser switch."}];
@@ -77,8 +63,14 @@
                                              userInfo:@{NSLocalizedDescriptionKey: @"Failed to begin payment flow: BTLocalPaymentRequest amount and paymentType can not be nil."}];
             [delegate onPaymentComplete:nil error:error];
             return;
+        } else if (![configuration isLocalPaymentEnabled]) {
+            [[BTLogger sharedLogger] critical:@"Enable PayPal for this merchant in the Braintree Control Panel to use Local Payments."];
+            NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
+                                                 code:BTPaymentFlowDriverErrorTypeIntegration
+                                             userInfo:@{NSLocalizedDescriptionKey: @"Enable PayPal for this merchant in the Braintree Control Panel to use Local Payments."}];
+            [delegate onPaymentComplete:nil error:error];
+            return;
         }
-
         
         NSMutableDictionary *params = [@{
                                  @"amount": localPaymentRequest.amount,
@@ -129,11 +121,18 @@
                  self.paymentId = [body[@"paymentResource"][@"paymentToken"] asString];
                  NSString *approvalUrl = [body[@"paymentResource"][@"redirectUrl"] asString];
                  NSURL *url = [NSURL URLWithString:approvalUrl];
-                 // TODO verify id and url are present?
-                 if (self.localPaymentFlowDelegate) {
+
+                 if (self.paymentId && url) {
                      [self.localPaymentFlowDelegate localPaymentStarted:self paymentId:self.paymentId start:^{
                          [delegate onPaymentWithURL:url error:error];
                      }];
+                 } else {
+                     [[BTLogger sharedLogger] critical:@"Payment cannot be processed: the redirectUrl or paymentToken is nil.  Contact Braintree support if the error persists."];
+                     NSError *error = [NSError errorWithDomain:BTPaymentFlowDriverErrorDomain
+                                                          code:BTPaymentFlowDriverErrorTypeIntegration
+                                                      userInfo:@{NSLocalizedDescriptionKey: @"Payment cannot be processed: the redirectUrl or paymentToken is nil.  Contact Braintree support if the error persists."}];
+                     [delegate onPaymentComplete:nil error:error];
+                     return;
                  }
              } else {
                  [delegate onPaymentWithURL:nil error:error];
@@ -162,6 +161,10 @@
             parameters[@"paypal_account"][@"correlation_id"] = self.correlationId;
         }
 
+        if (self.merchantAccountId) {
+            parameters[@"merchant_account_id"] = self.merchantAccountId;
+        }
+
         BTClientMetadata *metadata =  self.paymentFlowDriverDelegate.apiClient.metadata;
         parameters[@"_meta"] = @{
                                  @"source" : metadata.sourceString,
@@ -177,7 +180,6 @@
                  [self.paymentFlowDriverDelegate onPaymentComplete:nil error:error];
                  return;
              } else {
-                 // TODO parse response into result
                  BTJSON *payPalAccount = body[@"paypalAccounts"][0];
                  NSString *nonce = [payPalAccount[@"nonce"] asString];
                  NSString *description = [payPalAccount[@"description"] asString];
@@ -268,7 +270,6 @@
 }
 
 - (NSString *)paymentFlowName {
-    // TODO add in payment type?
     return @"local-payment";
 }
 

@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Used to initialize a local payment flow
  */
-@interface BTLocalPaymentRequest : BTPaymentFlowRequest <NSCopying, BTPaymentFlowRequestDelegate>
+@interface BTLocalPaymentRequest : BTPaymentFlowRequest <BTPaymentFlowRequestDelegate>
 
 /**
  The type of payment.
