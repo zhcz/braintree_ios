@@ -5,6 +5,7 @@
 #import "BTHTTP.h"
 #import "BTLogger_Internal.h"
 #import <UIKit/UIKit.h>
+#import <FPTI/FPTI-Swift.h>
 
 #pragma mark - BTAnalyticsEvent
 
@@ -136,6 +137,11 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
 }
 
 - (void)sendAnalyticsEvent:(NSString *)eventKind completion:(__unused void(^)(NSError *error))completionBlock {
+    // SPIKE START
+    [FPTITracker.sharedInstance disableLifecycleTracking];
+    [FPTITracker.sharedInstance setCustomDictionaryForEvents:@{@"ppMerchantId" : @"pp-abc-id", @"btMerchantId" : @"bt-123-id", @"orderId" : @"sample-order-id"}];
+    [FPTITracker.sharedInstance trackEvent:@"ios.paypal-sdk.card-checkout.started" with:@{}];
+    // SPIKE END
     dispatch_async(dispatch_get_main_queue(), ^{
         [self enqueueEvent:eventKind];
         [self flush:completionBlock];
