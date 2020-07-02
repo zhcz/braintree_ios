@@ -27,6 +27,7 @@ Pod::Spec.new do |s|
     s.source_files  = "BraintreeCore/**/*.{h,m}"
     s.public_header_files = "BraintreeCore/Public/*.h"
     s.weak_frameworks = "Contacts"
+    s.vendored_frameworks = "Frameworks/FPTI.framework"
   end
 
   s.subspec "Apple-Pay" do |s|

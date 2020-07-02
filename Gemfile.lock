@@ -141,7 +141,7 @@ GEM
     unicode-display_width (1.7.0)
     xcinvoke (0.3.0)
       liferaft (~> 0.0.6)
-    xcodeproj (1.16.0)
+    xcodeproj (1.17.0)
       CFPropertyList (>= 2.3.3, < 4.0)
       atomos (~> 0.1.3)
       claide (>= 1.0.2, < 2.0)
