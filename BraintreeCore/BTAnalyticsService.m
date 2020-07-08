@@ -114,6 +114,7 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
 
 - (instancetype)initWithAPIClient:(BTAPIClient *)apiClient {
     if (self = [super init]) {
+        [FPTITracker.sharedInstance disableLifecycleTracking];
         _analyticsSessions = [NSMutableDictionary dictionary];
         _sessionsQueue = dispatch_queue_create("com.braintreepayments.BTAnalyticsService", DISPATCH_QUEUE_SERIAL);
         _apiClient = apiClient;
@@ -137,15 +138,14 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
 }
 
 - (void)sendAnalyticsEvent:(NSString *)eventKind completion:(__unused void(^)(NSError *error))completionBlock {
-    // SPIKE START
-    [FPTITracker.sharedInstance disableLifecycleTracking];
-    [FPTITracker.sharedInstance setCustomDictionaryForEvents:@{@"ppMerchantId" : @"pp-abc-id", @"btMerchantId" : @"bt-123-id", @"orderId" : @"sample-order-id"}];
-    [FPTITracker.sharedInstance trackEvent:@"ios.paypal-sdk.card-checkout.started" with:@{}];
-    // SPIKE END
     dispatch_async(dispatch_get_main_queue(), ^{
         [self enqueueEvent:eventKind];
         [self flush:completionBlock];
     });
+}
+
+- (void)sendFPTIEvent:(NSString *)eventKind with:(NSDictionary *)additionalData {
+    [FPTITracker.sharedInstance trackEvent:eventKind with:additionalData];
 }
 
 - (void)flush:(void (^)(NSError *))completionBlock {

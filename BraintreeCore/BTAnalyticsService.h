@@ -51,6 +51,14 @@ typedef NS_ENUM(NSUInteger, BTAnalyticsServiceErrorType) {
 - (void)sendAnalyticsEvent:(NSString *)eventKind completion:(nullable void(^)(NSError * _Nullable))completionBlock;
 
 /**
+ Tracks an event through the FPTI system.
+
+ @param eventKind The name of the event.
+ @param additionalData Additional data passed along with the event.
+*/
+- (void)sendFPTIEvent:(NSString *)eventKind with:(NSDictionary *)additionalData;
+
+/**
  Sends all queued events to the analytics service.
 
  @param completionBlock A callback that is invoked when the analytics service has completed.

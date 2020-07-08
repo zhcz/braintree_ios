@@ -23,11 +23,18 @@
 @end
 
 @interface BTFakeAnalyticsService : BTAnalyticsService
+@property (nonatomic, copy) NSString *lastFPTIEvent;
+@property (nonatomic, copy) NSDictionary *lastFPTIAdditionalData;
 @property (nonatomic, copy) NSString *lastEvent;
 @property (nonatomic, assign) BOOL didLastFlush;
 @end
 
 @implementation BTFakeAnalyticsService
+
+- (void)sendFPTIEvent:(NSString *)eventKind with:(NSDictionary *)additionalData {
+    self.lastFPTIEvent = eventKind;
+    self.lastFPTIAdditionalData = additionalData;
+}
 
 - (void)sendAnalyticsEvent:(NSString *)eventKind {
     self.lastEvent = eventKind;
@@ -301,6 +308,17 @@
 
     XCTAssertEqualObjects(mockAnalyticsService.lastEvent, @"blahblahqueue");
     XCTAssertFalse(mockAnalyticsService.didLastFlush);
+}
+
+- (void)testSendFPTIEvent_whenCalled_callsAnalyticsService_withFPTIEvent_andData {
+    BTAPIClient *apiClient = [[BTAPIClient alloc] initWithAuthorization:@"development_tokenization_key" sendAnalyticsEvent:NO];
+    BTFakeAnalyticsService *mockAnalyticsService = [[BTFakeAnalyticsService alloc] init];
+    apiClient.analyticsService = mockAnalyticsService;
+
+    [apiClient sendFPTIEvent:@"lighthouse" with:@{@"order_id":@"123"}];
+
+    XCTAssertEqualObjects(mockAnalyticsService.lastFPTIEvent, @"lighthouse");
+    XCTAssertEqualObjects(mockAnalyticsService.lastFPTIAdditionalData, @{@"order_id":@"123"});
 }
 
 #pragma mark - Client SDK Metadata
