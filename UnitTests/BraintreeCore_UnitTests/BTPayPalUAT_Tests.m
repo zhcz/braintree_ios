@@ -11,7 +11,7 @@
 // Swift creates an error object implicitly, so a nil error can only be tested in Objective C
 - (void)testInitWithUATString_whenErrorIsNil_setsAuthorizationFingerprintAndConfigURL {
     NSDictionary *dict = @{@"iss": @"https://api.paypal.com",
-                           @"external_ids": @[
+                           @"external_id": @[
                                    @"PayPal:fake-pp-merchant",
                                    @"Braintree:some-bt-merchant"
                            ]};

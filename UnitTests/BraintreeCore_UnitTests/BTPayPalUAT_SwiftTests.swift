@@ -13,7 +13,7 @@ class BTPayPalUAT_Tests: XCTestCase {
                 "Braintree:Vault"
             ],
             "exp": 1571980506,
-            "external_ids": [
+            "external_id": [
                 "PayPal:fake-pp-merchant",
                 "Braintree:fake-bt-merchant"
             ],
@@ -34,7 +34,7 @@ class BTPayPalUAT_Tests: XCTestCase {
     func testInitWithUATString_whenUATContainsStagingISS_setsEnvironment() {
         let dict: [String : Any] = [
             "iss": "https://api.msmaster.qa.paypal.com",
-            "external_ids": [
+            "external_id": [
                 "Braintree:my-merchant"
             ]
         ]
@@ -48,7 +48,7 @@ class BTPayPalUAT_Tests: XCTestCase {
     func testInitWithUATString_whenUATContainsSandboxISS_setsEnvironment() {
         let dict: [String : Any] = [
             "iss": "https://api.sandbox.paypal.com",
-            "external_ids": [
+            "external_id": [
                 "Braintree:my-merchant"
             ]
         ]
@@ -144,7 +144,7 @@ class BTPayPalUAT_Tests: XCTestCase {
     func testInitWithUATString_whenJSONContainsUnknownIssuer_throwsError() {
         let dict: [String : Any] = [
             "iss": "www.im-a-fraud.com",
-            "external_ids": [
+            "external_id": [
                 "Braintree:fake-bt-merchant"
             ]
         ]
@@ -160,7 +160,7 @@ class BTPayPalUAT_Tests: XCTestCase {
 
     func testInitWithUATString_whenJSONDoesNotContainBraintreeMerchantId_throwsError() {
         let dict: [String : Any] = [
-            "external_ids": [
+            "external_id": [
                 "PayPal:merchant-id"
             ]
         ]

@@ -77,7 +77,7 @@
 #pragma mark - Helpers
 
 -(void)fetchPayPalUAT:(void (^)(NSString *uat, NSError * _Nullable error))completion {
-    NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://ppcp-sample-merchant-sand.herokuapp.com/uat?countryCode=US"]];
+    NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://ppcp-sample-merchant-sand.herokuapp.com/id-token?countryCode=US"]];
 
     [urlRequest setHTTPMethod:@"GET"];
 
@@ -91,7 +91,7 @@
             NSError *parseError = nil;
             NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
 
-            completion(responseDictionary[@"universal_access_token"], parseError);
+            completion(responseDictionary[@"id_token"], parseError);
         }
 
         completion(nil, nil);
