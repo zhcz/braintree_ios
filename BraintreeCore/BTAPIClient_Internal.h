@@ -63,6 +63,14 @@ typedef NS_ENUM(NSInteger, BTAPIClientAuthorizationType) {
 - (void)sendFPTIEvent:(NSString *)eventKind with:(NSDictionary *)additionalData;
 
 /**
+ Tracks an event through both FPTI and Arachne.
+
+ @param eventKind The name of the event.
+ @param additionalData Additional data passed along with the event.
+*/
+- (void)sendSDKEvent:(NSString *)eventKind with:(NSDictionary *)additionalData;
+
+/**
  Queues an analytics event to be sent.
  */
 - (void)queueAnalyticsEvent:(NSString *)eventName;
