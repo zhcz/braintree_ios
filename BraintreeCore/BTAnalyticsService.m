@@ -5,7 +5,8 @@
 #import "BTHTTP.h"
 #import "BTLogger_Internal.h"
 #import <UIKit/UIKit.h>
-#import <FPTI/FPTI-Swift.h>
+
+NSString *const BTFPTITrackerClassName = @"FPTI.FPTITracker";
 
 #pragma mark - BTAnalyticsEvent
 
@@ -21,6 +22,12 @@
 /// Event serialized to JSON
 - (nonnull NSDictionary *)json;
 
+@end
+
+@interface FPTITrackerClassProxy : NSObject
++ (FPTITrackerClassProxy * _Nonnull)sharedInstance;
+- (void)disableLifecycleTracking;
+- (void)trackEvent:(NSString * _Nonnull)eventType with:(NSDictionary<NSString *, id> * _Nonnull)params;
 @end
 
 @implementation BTAnalyticsEvent
@@ -114,7 +121,10 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
 
 - (instancetype)initWithAPIClient:(BTAPIClient *)apiClient {
     if (self = [super init]) {
-        [FPTITracker.sharedInstance disableLifecycleTracking];
+        if ([self isFPTIAvailable]) {
+            Class kFPTITracker = NSClassFromString(BTFPTITrackerClassName);
+            [[kFPTITracker sharedInstance] disableLifecycleTracking];
+        }
         _analyticsSessions = [NSMutableDictionary dictionary];
         _sessionsQueue = dispatch_queue_create("com.braintreepayments.BTAnalyticsService", DISPATCH_QUEUE_SERIAL);
         _apiClient = apiClient;
@@ -145,7 +155,10 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
 }
 
 - (void)sendFPTIEvent:(NSString *)eventKind with:(NSDictionary *)additionalData {
-    [FPTITracker.sharedInstance trackEvent:eventKind with:additionalData];
+    if ([self isFPTIAvailable]) {
+        Class kFPTITracker = NSClassFromString(BTFPTITrackerClassName);
+        [[kFPTITracker sharedInstance] trackEvent:eventKind with:additionalData];
+    }
 }
 
 - (void)flush:(void (^)(NSError *))completionBlock {
@@ -294,6 +307,14 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
     if (eventCount >= self.flushThreshold) {
         [self flush:nil];
     }
+}
+
+- (BOOL)isFPTIAvailable {
+    Class kFPTITracker = NSClassFromString(BTFPTITrackerClassName);
+    if (kFPTITracker != nil) {
+        return YES;
+    }
+    return NO;
 }
 
 @end

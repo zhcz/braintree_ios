@@ -71,6 +71,11 @@ typedef NS_ENUM(NSInteger, BTAPIClientAuthorizationType) {
 - (void)sendSDKEvent:(NSString *)eventKind with:(NSDictionary *)additionalData;
 
 /**
+ Returns TRUE if the FPTI class is available.
+*/
+- (BOOL)isFPTIAvailable;
+
+/**
  Queues an analytics event to be sent.
  */
 - (void)queueAnalyticsEvent:(NSString *)eventName;
