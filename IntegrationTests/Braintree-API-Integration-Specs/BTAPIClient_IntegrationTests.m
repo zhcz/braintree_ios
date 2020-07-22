@@ -1,5 +1,6 @@
 #import <BraintreeCore/BraintreeCore.h>
 #import <BraintreeCore/BTAPIClient_Internal.h>
+#import "IntegrationTests-Swift.h"
 #import <XCTest/XCTest.h>
 
 @interface BTAPIClient_IntegrationTests : XCTestCase
@@ -50,17 +51,17 @@
     [self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
-- (void)testFetchConfiguration_withPayPalUAT_returnsTheConfiguration {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"Fetch UAT from PPCP sample server; then fetch BT config"];
+- (void)testFetchConfiguration_withPayPalIDToken_returnsTheConfiguration {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Fetch ID Token from PPCP sample server; then fetch BT config"];
 
-    // NOTE: - This test needs to fetch an active PayPal UAT
-    // Currently, the PP team cannot provide hard-coded UAT test values
-    [self fetchPayPalUAT:^(NSString *uat, NSError * _Nullable error) {
+    // NOTE: - This test needs to fetch an active PayPal ID Token
+    // Currently, the PP team cannot provide hard-coded PP ID Token test values
+    [PPCPHelper.sharedInstance fetchPayPalIDTokenWithCompletion:^(NSString * _Nullable idToken, NSError * _Nullable error) {
         if (error) {
-            XCTFail(@"Error fetching a UAT from https://ppcp-sample-merchant-sand.herokuapp.com");
+            XCTFail(@"Error fetching a ID Token from https://ppcp-sample-merchant-sand.herokuapp.com");
         }
 
-        BTAPIClient *client = [[BTAPIClient alloc] initWithAuthorization:uat];
+        BTAPIClient *client = [[BTAPIClient alloc] initWithAuthorization:idToken];
 
         [client fetchOrReturnRemoteConfiguration:^(BTConfiguration *configuration, NSError *error) {
             XCTAssertEqualObjects([configuration.json[@"merchantId"] asString], @"cfxs3ghzwfk2rhqm");
@@ -72,32 +73,6 @@
     }];
 
     [self waitForExpectationsWithTimeout:20 handler:nil];
-}
-
-#pragma mark - Helpers
-
--(void)fetchPayPalUAT:(void (^)(NSString *uat, NSError * _Nullable error))completion {
-    NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://ppcp-sample-merchant-sand.herokuapp.com/uat?countryCode=US"]];
-
-    [urlRequest setHTTPMethod:@"GET"];
-
-    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        if (error) {
-            completion(nil, error);
-        }
-
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-        if (httpResponse.statusCode == 200) {
-            NSError *parseError = nil;
-            NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
-
-            completion(responseDictionary[@"universal_access_token"], parseError);
-        }
-
-        completion(nil, nil);
-    }];
-
-    [dataTask resume];
 }
 
 @end
