@@ -1,5 +1,6 @@
 #import <BraintreeCore/BraintreeCore.h>
 #import <BraintreeCore/BTAPIClient_Internal.h>
+#import "IntegrationTests-Swift.h"
 #import <XCTest/XCTest.h>
 
 @interface BTAPIClient_IntegrationTests : XCTestCase
@@ -55,7 +56,7 @@
 
     // NOTE: - This test needs to fetch an active PayPal ID Token
     // Currently, the PP team cannot provide hard-coded PP ID Token test values
-    [self fetchPayPalIDToken:^(NSString *idToken, NSError * _Nullable error) {
+    [PPCPHelper.sharedInstance fetchPayPalIDTokenWithCompletion:^(NSString * _Nullable idToken, NSError * _Nullable error) {
         if (error) {
             XCTFail(@"Error fetching a ID Token from https://ppcp-sample-merchant-sand.herokuapp.com");
         }
@@ -72,32 +73,6 @@
     }];
 
     [self waitForExpectationsWithTimeout:20 handler:nil];
-}
-
-#pragma mark - Helpers
-
--(void)fetchPayPalIDToken:(void (^)(NSString *idToken, NSError * _Nullable error))completion {
-    NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"https://ppcp-sample-merchant-sand.herokuapp.com/id-token?countryCode=US"]];
-
-    [urlRequest setHTTPMethod:@"GET"];
-
-    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        if (error) {
-            completion(nil, error);
-        }
-
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-        if (httpResponse.statusCode == 200) {
-            NSError *parseError = nil;
-            NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
-
-            completion(responseDictionary[@"id_token"], parseError);
-        }
-
-        completion(nil, nil);
-    }];
-
-    [dataTask resume];
 }
 
 @end

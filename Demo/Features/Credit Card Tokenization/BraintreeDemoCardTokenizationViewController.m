@@ -30,7 +30,7 @@
 }
 
 - (IBAction)submitForm {
-    self.progressBlock(@"Tokenizing card details!");
+    self.progressBlock(@"Tokenizing card details...");
 
     BTCardClient *cardClient = [[BTCardClient alloc] initWithAPIClient:self.apiClient];
     BTCard *card = [[BTCard alloc] initWithNumber:self.cardNumberField.text

@@ -126,6 +126,30 @@
     [self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
+- (void)testTokenizeCard_whenUsingPayPalIDToken {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Tokenize card"];
+
+    // NOTE: - This test needs to fetch an active PayPal ID Token
+    // Currently, the PP team cannot provide hard-coded PP ID Token test values
+    [PPCPHelper.sharedInstance fetchPayPalIDTokenWithCompletion:^(NSString * _Nullable idToken, NSError * _Nullable error) {
+        if (error) {
+            XCTFail(@"Error fetching a ID Token from https://ppcp-sample-merchant-sand.herokuapp.com");
+        }
+
+        BTAPIClient *apiClient = [[BTAPIClient alloc] initWithAuthorization:idToken];
+        BTCardClient *cardClient = [[BTCardClient alloc] initWithAPIClient:apiClient];
+        BTCard *card = [self validCard];
+
+        [cardClient tokenizeCard:card completion:^(BTCardNonce * _Nullable tokenizedCard, NSError * _Nullable error) {
+            expect(tokenizedCard.nonce.isANonce).to.beTruthy();
+            expect(error).to.beNil();
+            [expectation fulfill];
+        }];
+    }];
+
+    [self waitForExpectationsWithTimeout:5 handler:nil];
+}
+
 - (void)testTokenizeCard_withCVVOnly_tokenizesSuccessfully {
     BTAPIClient *apiClient = [[BTAPIClient alloc] initWithAuthorization:SANDBOX_CLIENT_TOKEN_VERSION_3];
     BTCardClient *client = [[BTCardClient alloc] initWithAPIClient:apiClient];
