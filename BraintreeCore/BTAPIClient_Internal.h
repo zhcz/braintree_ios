@@ -50,25 +50,26 @@ typedef NS_ENUM(NSInteger, BTAPIClientAuthorizationType) {
 @property (nonatomic, strong) BTAnalyticsService *analyticsService;
 
 /**
- Sends this event and all queued analytics events. Use `queueAnalyticsEvent` for low priority events.
+ Tracks an event through Arachne. Use `queueAnalyticsEvent` for low priority Arachne events.
+ @param eventName The event to track.
 */
 - (void)sendAnalyticsEvent:(NSString *)eventName;
 
 /**
  Tracks an event through the FPTI system.
 
- @param eventKind The name of the event.
+ @param eventName The event to track.
  @param additionalData Additional data passed along with the event.
 */
-- (void)sendFPTIEvent:(NSString *)eventKind with:(NSDictionary *)additionalData;
+- (void)sendFPTIEvent:(NSString *)eventName with:(NSDictionary *)additionalData;
 
 /**
  Tracks an event through both FPTI and Arachne.
 
- @param eventKind The name of the event.
+ @param eventName The event to track.
  @param additionalData Additional data passed along with the event.
 */
-- (void)sendSDKEvent:(NSString *)eventKind with:(NSDictionary *)additionalData;
+- (void)sendSDKEvent:(NSString *)eventName with:(NSDictionary *)additionalData;
 
 /**
  Returns TRUE if the FPTI class is available.
@@ -76,7 +77,8 @@ typedef NS_ENUM(NSInteger, BTAPIClientAuthorizationType) {
 - (BOOL)isFPTIAvailable;
 
 /**
- Queues an analytics event to be sent.
+ Queues a low priority event through Arachne.
+ @param eventName The event to track.
  */
 - (void)queueAnalyticsEvent:(NSString *)eventName;
 

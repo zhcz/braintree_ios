@@ -53,10 +53,10 @@ typedef NS_ENUM(NSUInteger, BTAnalyticsServiceErrorType) {
 /**
  Tracks an event through the FPTI system.
 
- @param eventKind The name of the event.
+ @param eventName The event to track.
  @param additionalData Additional data passed along with the event.
 */
-- (void)sendFPTIEvent:(NSString *)eventKind with:(NSDictionary *)additionalData;
+- (void)sendFPTIEvent:(NSString *)eventName with:(NSDictionary *)additionalData;
 
 /**
  Returns TRUE if the FPTI class is available.

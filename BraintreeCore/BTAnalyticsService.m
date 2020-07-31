@@ -154,10 +154,10 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
     });
 }
 
-- (void)sendFPTIEvent:(NSString *)eventKind with:(NSDictionary *)additionalData {
+- (void)sendFPTIEvent:(NSString *)eventName with:(NSDictionary *)additionalData {
     if ([self isFPTIAvailable]) {
         Class kFPTITracker = NSClassFromString(BTFPTITrackerClassName);
-        [[kFPTITracker sharedInstance] trackEvent:eventKind with:additionalData];
+        [[kFPTITracker sharedInstance] trackEvent:eventName with:additionalData];
     }
 }
 

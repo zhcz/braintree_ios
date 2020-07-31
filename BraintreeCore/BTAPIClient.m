@@ -381,13 +381,13 @@ NSString *const BTAPIClientErrorDomain = @"com.braintreepayments.BTAPIClientErro
     [self.analyticsService sendAnalyticsEvent:eventKind completion:nil];
 }
 
-- (void)sendFPTIEvent:(NSString *)eventKind with:(NSDictionary *)additionalData {
-    [self.analyticsService sendFPTIEvent:eventKind with:additionalData];
+- (void)sendFPTIEvent:(NSString *)eventName with:(NSDictionary *)additionalData {
+    [self.analyticsService sendFPTIEvent:eventName with:additionalData];
 }
 
-- (void)sendSDKEvent:(NSString *)eventKind with:(NSDictionary *)additionalData {
-    [self sendAnalyticsEvent:eventKind];
-    [self sendFPTIEvent:eventKind with:additionalData];
+- (void)sendSDKEvent:(NSString *)eventName with:(NSDictionary *)additionalData {
+    [self sendAnalyticsEvent:eventName];
+    [self sendFPTIEvent:eventName with:additionalData];
 }
 
 - (BOOL)isFPTIAvailable {
