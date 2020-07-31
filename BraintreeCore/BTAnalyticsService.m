@@ -310,11 +310,7 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
 }
 
 - (BOOL)isFPTIAvailable {
-    Class kFPTITracker = NSClassFromString(BTFPTITrackerClassName);
-    if (kFPTITracker != nil) {
-        return YES;
-    }
-    return NO;
+    return NSClassFromString(BTFPTITrackerClassName) != nil;
 }
 
 @end
