@@ -8,21 +8,7 @@
 
 NSString *const BTFPTITrackerClassName = @"FPTI.FPTITracker";
 
-#pragma mark - BTAnalyticsEvent
-
-/// Encapsulates a single analytics event
-@interface BTAnalyticsEvent : NSObject
-
-@property (nonatomic, copy) NSString *kind;
-
-@property (nonatomic, assign) uint64_t timestamp;
-
-+ (nonnull instancetype)event:(nonnull NSString *)eventKind withTimestamp:(uint64_t)timestamp;
-
-/// Event serialized to JSON
-- (nonnull NSDictionary *)json;
-
-@end
+#pragma mark - BPTITrackerClassProxy
 
 // NOTE: The compiler will throw "no known class/instance method for selector" errors
 // if it can't find any classes with these method signatures. This prevents those errors.
@@ -32,11 +18,27 @@ NSString *const BTFPTITrackerClassName = @"FPTI.FPTITracker";
 - (void)trackEvent:(NSString * _Nonnull)eventType with:(NSDictionary<NSString *, id> * _Nonnull)params;
 @end
 
+#pragma mark - BTAnalyticsEvent
+
+/// Encapsulates a single analytics event
+@interface BTAnalyticsEvent : NSObject
+
+@property (nonatomic, copy) NSString *kind;
+
+@property (nonatomic, assign) uint64_t timestamp;
+
++ (nonnull instancetype)event:(nonnull NSString *)eventName withTimestamp:(uint64_t)timestamp;
+
+/// Event serialized to JSON
+- (nonnull NSDictionary *)json;
+
+@end
+
 @implementation BTAnalyticsEvent
 
-+ (instancetype)event:(NSString *)eventKind withTimestamp:(uint64_t)timestamp {
++ (instancetype)event:(NSString *)eventName withTimestamp:(uint64_t)timestamp {
     BTAnalyticsEvent *event = [[BTAnalyticsEvent alloc] init];
-    event.kind = eventKind;
+    event.kind = eventName;
     event.timestamp = timestamp;
     return event;
 }
@@ -142,16 +144,16 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
 
 #pragma mark - Public methods
 
-- (void)sendAnalyticsEvent:(NSString *)eventKind {
+- (void)sendAnalyticsEvent:(NSString *)eventName {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self enqueueEvent:eventKind];
+        [self enqueueEvent:eventName];
         [self checkFlushThreshold];
     });
 }
 
-- (void)sendAnalyticsEvent:(NSString *)eventKind completion:(__unused void(^)(NSError *error))completionBlock {
+- (void)sendAnalyticsEvent:(NSString *)eventName completion:(__unused void(^)(NSError *error))completionBlock {
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self enqueueEvent:eventKind];
+        [self enqueueEvent:eventName];
         [self flush:completionBlock];
     });
 }
@@ -276,9 +278,9 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
 
 #pragma mark - Helpers
 
-- (void)enqueueEvent:(NSString *)eventKind {
+- (void)enqueueEvent:(NSString *)eventName {
     uint64_t timestampInMilliseconds = ([[NSDate date] timeIntervalSince1970] * 1000);
-    BTAnalyticsEvent *event = [BTAnalyticsEvent event:eventKind withTimestamp:timestampInMilliseconds];
+    BTAnalyticsEvent *event = [BTAnalyticsEvent event:eventName withTimestamp:timestampInMilliseconds];
 
     BTAnalyticsSession *session = [BTAnalyticsSession sessionWithID:self.apiClient.metadata.sessionId
                                                              source:self.apiClient.metadata.sourceString

@@ -377,8 +377,8 @@ NSString *const BTAPIClientErrorDomain = @"com.braintreepayments.BTAPIClientErro
     return analyticsService;
 }
 
-- (void)sendAnalyticsEvent:(NSString *)eventKind {
-    [self.analyticsService sendAnalyticsEvent:eventKind completion:nil];
+- (void)sendAnalyticsEvent:(NSString *)eventName {
+    [self.analyticsService sendAnalyticsEvent:eventName completion:nil];
 }
 
 - (void)sendFPTIEvent:(NSString *)eventName with:(NSDictionary *)additionalData {
@@ -394,8 +394,8 @@ NSString *const BTAPIClientErrorDomain = @"com.braintreepayments.BTAPIClientErro
     return [self.analyticsService isFPTIAvailable];
 }
 
-- (void)queueAnalyticsEvent:(NSString *)eventKind {
-    [self.analyticsService sendAnalyticsEvent:eventKind];
+- (void)queueAnalyticsEvent:(NSString *)eventName {
+    [self.analyticsService sendAnalyticsEvent:eventName];
 }
 
 - (NSDictionary *)metaParameters {

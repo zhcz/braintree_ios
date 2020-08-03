@@ -9,44 +9,7 @@
 #import "BTHTTP.h"
 #import "BTHTTPTestProtocol.h"
 #import "BTSpecHelper.h"
-
-@interface StubBTClientMetadata : BTClientMetadata
-@property (nonatomic, assign) BTClientMetadataIntegrationType integration;
-@property (nonatomic, assign) BTClientMetadataSourceType source;
-@property (nonatomic, copy) NSString *sessionId;
-@end
-
-@implementation StubBTClientMetadata
-@synthesize integration = _integration;
-@synthesize source = _source;
-@synthesize sessionId = _sessionId;
-@end
-
-@interface BTFakeAnalyticsService : BTAnalyticsService
-@property (nonatomic, copy) NSString *lastFPTIEvent;
-@property (nonatomic, copy) NSDictionary *lastFPTIAdditionalData;
-@property (nonatomic, copy) NSString *lastEvent;
-@property (nonatomic, assign) BOOL didLastFlush;
-@end
-
-@implementation BTFakeAnalyticsService
-
-- (void)sendFPTIEvent:(NSString *)eventKind with:(NSDictionary *)additionalData {
-    self.lastFPTIEvent = eventKind;
-    self.lastFPTIAdditionalData = additionalData;
-}
-
-- (void)sendAnalyticsEvent:(NSString *)eventKind {
-    self.lastEvent = eventKind;
-    self.didLastFlush = NO;
-}
-
-- (void)sendAnalyticsEvent:(NSString *)eventKind completion:(__unused void (^)(NSError *))completionBlock {
-    self.lastEvent = eventKind;
-    self.didLastFlush = YES;
-}
-
-@end
+#import "UnitTests-Swift.h"
 
 @interface BTAPIClient_Tests : XCTestCase
 @end
@@ -290,35 +253,47 @@
 
 - (void)testSendAnalyticsEvent_whenCalled_callsAnalyticsService_doesFlush {
     BTAPIClient *apiClient = [[BTAPIClient alloc] initWithAuthorization:@"development_tokenization_key" sendAnalyticsEvent:NO];
-    BTFakeAnalyticsService *mockAnalyticsService = [[BTFakeAnalyticsService alloc] init];
+    BTMockAnalyticsService *mockAnalyticsService = [[BTMockAnalyticsService alloc] init];
     apiClient.analyticsService = mockAnalyticsService;
 
     [apiClient sendAnalyticsEvent:@"blahblah"];
 
-    XCTAssertEqualObjects(mockAnalyticsService.lastEvent, @"blahblah");
-    XCTAssertTrue(mockAnalyticsService.didLastFlush);
+    XCTAssertEqualObjects(mockAnalyticsService.lastArachneEvent, @"blahblah");
+    XCTAssertTrue(mockAnalyticsService.didFlushQueue);
 }
 
 - (void)testQueueAnalyticsEvent_whenCalled_callsAnalyticsService_doesNotFlush {
     BTAPIClient *apiClient = [[BTAPIClient alloc] initWithAuthorization:@"development_tokenization_key" sendAnalyticsEvent:NO];
-    BTFakeAnalyticsService *mockAnalyticsService = [[BTFakeAnalyticsService alloc] init];
+    BTMockAnalyticsService *mockAnalyticsService = [[BTMockAnalyticsService alloc] init];
     apiClient.analyticsService = mockAnalyticsService;
 
     [apiClient queueAnalyticsEvent:@"blahblahqueue"];
 
-    XCTAssertEqualObjects(mockAnalyticsService.lastEvent, @"blahblahqueue");
-    XCTAssertFalse(mockAnalyticsService.didLastFlush);
+    XCTAssertEqualObjects(mockAnalyticsService.lastArachneEvent, @"blahblahqueue");
+    XCTAssertFalse(mockAnalyticsService.didFlushQueue);
 }
 
 - (void)testSendFPTIEvent_whenCalled_callsAnalyticsService_withFPTIEvent_andData {
     BTAPIClient *apiClient = [[BTAPIClient alloc] initWithAuthorization:@"development_tokenization_key" sendAnalyticsEvent:NO];
-    BTFakeAnalyticsService *mockAnalyticsService = [[BTFakeAnalyticsService alloc] init];
+    BTMockAnalyticsService *mockAnalyticsService = [[BTMockAnalyticsService alloc] init];
     apiClient.analyticsService = mockAnalyticsService;
 
     [apiClient sendFPTIEvent:@"lighthouse" with:@{@"order_id":@"123"}];
 
     XCTAssertEqualObjects(mockAnalyticsService.lastFPTIEvent, @"lighthouse");
     XCTAssertEqualObjects(mockAnalyticsService.lastFPTIAdditionalData, @{@"order_id":@"123"});
+}
+
+- (void)testSendSDKEvent_sendsEventsToArachneAndFPTI {
+    BTAPIClient *apiClient = [[BTAPIClient alloc] initWithAuthorization:@"development_tokenization_key" sendAnalyticsEvent:NO];
+    BTMockAnalyticsService *mockAnalyticsService = [[BTMockAnalyticsService alloc] init];
+    apiClient.analyticsService = mockAnalyticsService;
+
+    [apiClient sendSDKEvent:@"event-name" with:@{@"order_id":@"123"}];
+
+    XCTAssertEqualObjects(mockAnalyticsService.lastFPTIEvent, @"event-name");
+    XCTAssertEqualObjects(mockAnalyticsService.lastFPTIAdditionalData, @{@"order_id":@"123"});
+    XCTAssertEqualObjects(mockAnalyticsService.lastArachneEvent, @"event-name");
 }
 
 #pragma mark - Client SDK Metadata
