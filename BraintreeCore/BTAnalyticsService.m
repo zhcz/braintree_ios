@@ -24,6 +24,8 @@ NSString *const BTFPTITrackerClassName = @"FPTI.FPTITracker";
 
 @end
 
+// NOTE: The compiler will throw "no known class/instance method for selector" errors
+// if it can't find any classes with these method signatures. This prevents those errors.
 @interface FPTITrackerClassProxy : NSObject
 + (FPTITrackerClassProxy * _Nonnull)sharedInstance;
 - (void)disableLifecycleTracking;
