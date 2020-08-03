@@ -125,7 +125,7 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
 
 - (instancetype)initWithAPIClient:(BTAPIClient *)apiClient {
     if (self = [super init]) {
-        if ([self isFPTIAvailable]) {
+        if (self.isFPTIAvailable) {
             Class kFPTITracker = NSClassFromString(BTFPTITrackerClassName);
             [[kFPTITracker sharedInstance] disableLifecycleTracking];
         }
@@ -159,7 +159,7 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
 }
 
 - (void)sendFPTIEvent:(NSString *)eventName with:(NSDictionary *)additionalData {
-    if ([self isFPTIAvailable]) {
+    if (self.isFPTIAvailable) {
         Class kFPTITracker = NSClassFromString(BTFPTITrackerClassName);
         [[kFPTITracker sharedInstance] trackEvent:eventName with:additionalData];
     }

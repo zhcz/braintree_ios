@@ -391,7 +391,7 @@ NSString *const BTAPIClientErrorDomain = @"com.braintreepayments.BTAPIClientErro
 }
 
 - (BOOL)isFPTIAvailable {
-    return [self.analyticsService isFPTIAvailable];
+    return self.analyticsService.isFPTIAvailable;
 }
 
 - (void)queueAnalyticsEvent:(NSString *)eventName {

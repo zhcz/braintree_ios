@@ -50,6 +50,11 @@ typedef NS_ENUM(NSInteger, BTAPIClientAuthorizationType) {
 @property (nonatomic, strong) BTAnalyticsService *analyticsService;
 
 /**
+ True if the FPTI framework is present.
+ */
+@property (nonatomic, readonly, assign) BOOL isFPTIAvailable;
+
+/**
  Tracks an event through Arachne. Use `queueAnalyticsEvent` for low priority Arachne events.
  @param eventName The event to track.
 */
@@ -70,11 +75,6 @@ typedef NS_ENUM(NSInteger, BTAPIClientAuthorizationType) {
  @param additionalData Additional data passed along with the event.
 */
 - (void)sendSDKEvent:(NSString *)eventName with:(NSDictionary *)additionalData;
-
-/**
- Returns TRUE if the FPTI class is available.
-*/
-- (BOOL)isFPTIAvailable;
 
 /**
  Queues a low priority event through Arachne.
