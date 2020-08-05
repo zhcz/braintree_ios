@@ -61,7 +61,7 @@ typedef NS_ENUM(NSUInteger, BTAnalyticsServiceErrorType) {
  @param eventName The event to track.
  @param additionalData Additional data passed along with the event.
 */
-- (void)sendFPTIEvent:(NSString *)eventName with:(NSDictionary *)additionalData;
+- (void)sendFPTIEvent:(NSString *)eventName with:(NSDictionary<NSString *, id> *)additionalData;
 
 /**
  Sends all queued events to the analytics service.

@@ -8,7 +8,7 @@
 
 NSString *const BTFPTITrackerClassName = @"FPTI.FPTITracker";
 
-#pragma mark - BPTITrackerClassProxy
+#pragma mark - FPTITrackerClassProxy
 
 // NOTE: The compiler will throw "no known class/instance method for selector" errors
 // if it can't find any classes with these method signatures. This prevents those errors.
@@ -158,7 +158,7 @@ NSString * const BTAnalyticsServiceErrorDomain = @"com.braintreepayments.BTAnaly
     });
 }
 
-- (void)sendFPTIEvent:(NSString *)eventName with:(NSDictionary *)additionalData {
+- (void)sendFPTIEvent:(NSString *)eventName with:(NSDictionary<NSString *, id> *)additionalData {
     if (self.isFPTIAvailable) {
         Class kFPTITracker = NSClassFromString(BTFPTITrackerClassName);
         [[kFPTITracker sharedInstance] trackEvent:eventName with:additionalData];
