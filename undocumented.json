@@ -1,0 +1,19 @@
+{
+  "warnings": [
+    {
+      "file": "/Users/sestevens/bt/braintree-ios/Sources/BraintreeThreeDSecure/Public/BraintreeThreeDSecure/BraintreeThreeDSecure.h",
+      "line": 4,
+      "symbol": "BraintreeThreeDSecureVersionNumber",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/sestevens/bt/braintree-ios/Sources/BraintreeThreeDSecure/Public/BraintreeThreeDSecure/BraintreeThreeDSecure.h",
+      "line": 7,
+      "symbol": "BraintreeThreeDSecureVersionString",
+      "symbol_kind": "sourcekitten.source.lang.objc.decl.constant",
+      "warning": "undocumented"
+    }
+  ],
+  "source_directory": "/Users/sestevens/bt/braintree-ios"
+}
