@@ -41,7 +41,7 @@ let package = Package(
         ),
         .library(
             name: "PayPalDataCollector",
-            targets: ["PayPalDataCollector", "PPRiskMagnes"]
+            targets: ["PayPalDataCollector"]
         )
     ],
     dependencies: [
@@ -100,7 +100,10 @@ let package = Package(
         ),
         .target(
             name: "PayPalDataCollector",
-            dependencies: ["BraintreeCore"],
+            dependencies: [
+                .target(name: "BraintreeCore"),
+                .target(name: "PPRiskMagnes")
+            ],
             path: "Sources/PayPalDataCollector"
         ),
         .binaryTarget(
